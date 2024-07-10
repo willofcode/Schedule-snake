@@ -6,7 +6,7 @@ Contents of ```db.js``` should be privately sent on Discord.
 # API Calls:
 Note: For legibility, 'host' in API calls below will mean http://localhost:3000, or other ports or local addresses you're running on. If you would like to test out the calls, I recommend using Postman for making these requests.
 ### Getting Started
-To get started, make sure your config/db.js is set up. Once done so, test your connection:</br> 
+To get started, make sure your config/db.js is set up. Once done so, test your connection:</br>
 Send ```host/api/testConnection``` as a GET request with no arguments after running ```npm run dev```
 ### SELECT statements
 Currently only supports statements that receive arguments column, table, and condition</br>
@@ -27,6 +27,11 @@ Supports parameters table and conditions. Deletes a row from a given table.</br>
 DELETE FROM statement endpoint is found in delete.ts at ```host/api/delete```</br>
 Examples:</br>
 ```host/api/delete?table=professor&condition=name="Troeger"```
+### UPDATE statements
+Supports parameters table, column, value, condition (Currently only supports updating with only one condition). Simply updates a given table at a specific column with given value based on a condition. </br>
+UPDATE endpoint found at update.ts at ```host/api/update```</br>
+Examples:</br>
+```host/api/update?table=student&column=year&value="Senior"&condition=age=21```
 # Connecting to Docker (Still WIP)
 ```
 docker pull gradlee/schedule-snake:latest
