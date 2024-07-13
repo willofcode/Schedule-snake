@@ -1,51 +1,14 @@
 'use client';
 import React, { useEffect, useState, useContext, createContext } from "react";
 import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
-import { text } from "stream/consumers";
 
 // Create a UserContext to manage user roles
 const UserContext = createContext({ userRole: "professor" });
 
 export default function Calendar() {
-    const styles = {
-        wrap: {
-            display: "flex"
-        },
-        left: {
-            marginRight: "10px"
-        },
-        main: {
-            flexGrow: "1"
-        },
-        contextMenu: {
-            text: "text-gray-950",
-            backgroundColor: "#ffffff",
-            color: "#000000",
-            border: "1px solid #ccc",
-            font: "16px 'Segoe UI', Arial, sans-serif",
-            borderRadius: "4px",
-            padding: "10px"
-        },
-        form: {
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            font: "text-gray-950",
-        },
-        contextMenuItem: {
-            padding: "10px",
-            cursor: "pointer",
-        },
-        contextMenuItemHover: {
-            backgroundColor: "#f0f0f0"
-        },
-        modal: {
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            font: "text-gray-950",
-        }
-    };
+    const [calendar, setCalendar] = useState<DayPilot.Calendar>();
+    const [startDate, setStartDate] = useState(DayPilot.Date.today().firstDayOfWeek());
+    const { userRole } = useContext(UserContext);
 
     const colors = [
         { name: "Green", id: "#6aa84f" },
@@ -72,9 +35,13 @@ export default function Calendar() {
         { name: "10", id: 10 },
     ];
 
-    const [calendar, setCalendar] = useState<DayPilot.Calendar>();
-    const [startDate, setStartDate] = useState(DayPilot.Date.today().firstDayOfWeek());
-    const { userRole } = useContext(UserContext);
+    const handlePreviousWeek = () => {
+        setStartDate(startDate.addDays(-7));
+    };
+
+    const handleNextWeek = () => {
+        setStartDate(startDate.addDays(7));
+    };
 
     const editEvent = async (e: DayPilot.Event) => {
         if (userRole !== "professor") return;
@@ -85,7 +52,7 @@ export default function Calendar() {
         ];
 
         const modal = await DayPilot.Modal.form(form, e.data);
-        if (modal.canceled) { return; }
+        if (modal.canceled) return;
         e.data.text = modal.result.text;
         e.data.backColor = modal.result.backColor;
         e.data.tags.participants = modal.result.tags.participants;
@@ -93,36 +60,38 @@ export default function Calendar() {
     };
 
     const contextMenu = new DayPilot.Menu({
-        items: userRole === "professor" ? [
-            {
-                text: "Delete",
-                onClick: async args => {
-                    calendar?.events.remove(args.source);
-                },
-            },
-            {
-                text: "-"
-            },
-            {
-                text: "Edit",
-                onClick: async args => {
-                    await editEvent(args.source);
-                }
-            }
-        ] : [
-            {
-                text: "View Details",
-                onClick: async args => {
-                    // Enroll logic here
-                }
-            },
-            {
-                text: "Drop",
-                onClick: async args => {
-                    // Drop logic here
-                }
-            }
-        ]
+        items: userRole === "professor"
+            ? [
+                    {
+                        text: "Delete",
+                        onClick: async (args) => {
+                            calendar?.events.remove(args.source);
+                        },
+                    },
+                    {
+                        text: "-",
+                    },
+                    {
+                        text: "Edit",
+                        onClick: async (args) => {
+                            await editEvent(args.source);
+                        },
+                    },
+                ]
+            : [
+                    {
+                        text: "View Details",
+                        onClick: async (args) => {
+                            // Enroll logic here
+                        },
+                    },
+                    {
+                        text: "Drop",
+                        onClick: async (args) => {
+                            // Drop logic here
+                        },
+                    },
+                ],
     });
 
     const onBeforeEventRender = (args: DayPilot.CalendarBeforeEventRenderArgs) => {
@@ -132,7 +101,6 @@ export default function Calendar() {
                 right: 5,
                 width: 20,
                 height: 20,
-                symbol: "icons/daypilot.svg#minichevron-down-2",
                 fontColor: "#fff",
                 backColor: "#00000033",
                 style: "border-radius: 25%; cursor: pointer;",
@@ -162,7 +130,7 @@ export default function Calendar() {
         durationBarVisible: false,
         businessBeginsHour: 7,
         businessEndsHour: 20,
-        startDate: DayPilot.Date.today().firstDayOfWeek()
+        startDate: DayPilot.Date.today().firstDayOfWeek(),
     };
 
     const [config, setConfig] = useState(initialConfig);
@@ -178,8 +146,8 @@ export default function Calendar() {
                 start: startDate.addDays(2).addHours(10).toString(),
                 end: startDate.addDays(2).addHours(13).toString(),
                 tags: {
-                    participants: 2,
-                }
+                    students: 2,
+                },
             },
             {
                 id: 2,
@@ -189,7 +157,7 @@ export default function Calendar() {
                 backColor: "#6aa84f",
                 tags: {
                     students: 1,
-                }
+                },
             },
             {
                 id: 3,
@@ -199,7 +167,7 @@ export default function Calendar() {
                 backColor: "#f1c232",
                 tags: {
                     students: 3,
-                }
+                },
             },
             {
                 id: 4,
@@ -209,7 +177,7 @@ export default function Calendar() {
                 backColor: "#cc4125",
                 tags: {
                     students: 2,
-                }
+                },
             },
         ];
 
@@ -220,9 +188,7 @@ export default function Calendar() {
         if (userRole !== "professor") return;
         const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
         calendar?.clearSelection();
-        if (modal.canceled) {
-            return;
-        }
+        if (modal.canceled) return;
         calendar?.events.add({
             start: args.start,
             end: args.end,
@@ -230,31 +196,29 @@ export default function Calendar() {
             text: modal.result,
             tags: {
                 students: 1,
-            }
+            },
         });
-    };
-
-    const handlePreviousWeek = () => {
-        setStartDate(startDate.addDays(-7));
-    };
-
-    const handleNextWeek = () => {
-        setStartDate(startDate.addDays(7));
     };
 
     return (
         <UserContext.Provider value={{ userRole: "professor" }}> {/* Change userRole to "student" to test student view */}
             <div>
                 <div className="flex justify-between items-center mt-20 max-w-screen-lg mx-auto">
-                    <button onClick={handlePreviousWeek} className="px-4 py-2 bg-blue-500 text-white rounded">Prev Week</button>
+                    <button onClick={handlePreviousWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
+                        Prev Week
+                    </button>
                     <h1 className="text-2xl my-5 text-white font-light">Schedule Builder</h1>
-                    <button onClick={handleNextWeek} className="px-4 py-2 bg-blue-500 text-white rounded">Next Week</button>
+                    <button onClick={handleNextWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
+                        Next Week
+                    </button>
                 </div>
                 <div className="relative justify-center items-center flex-col mx-auto mb-20 w-full max-w-screen-lg">
                     <DayPilotCalendar
                         {...config}
                         onTimeRangeSelected={onTimeRangeSelected}
-                        onEventClick={async args => { if (userRole === "professor") await editEvent(args.e); }}
+                        onEventClick={async (args) => {
+                            if (userRole === "professor") await editEvent(args.e);
+                        }}
                         contextMenu={contextMenu}
                         onBeforeEventRender={onBeforeEventRender}
                         controlRef={setCalendar}
