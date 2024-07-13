@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'NewsReader';
-  src: url("../../public/newsreader_font.ttf") format('truetype');
+  font-family: "NewsReader";
+  src: url("../../public/newsreader_font.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -28,7 +28,6 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -42,4 +41,8 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.scrollable-container {
+  overflow-y: auto;
 }
