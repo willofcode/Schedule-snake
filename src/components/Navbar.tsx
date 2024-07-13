@@ -28,12 +28,6 @@ const Navbar = () => {
               My Schedule
             </Link>
             <Link
-              href="/cart"
-              className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
-            >
-              Cart
-            </Link>
-            <Link
               href="/settings"
               className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
             >
