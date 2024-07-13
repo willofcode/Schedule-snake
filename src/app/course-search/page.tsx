@@ -34,12 +34,12 @@ const Search = () => {
             <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
                 <div>
                     <label className="block mb-1">Course Name</label>
-                    <input
+                    <input 
                         type="text"
                         value={courseName}
                         onChange={(e) => setCourseName(e.target.value)}
                         placeholder="Course Name"
-                        className="border p-2 w-full"
+                        className="border p-2 w-full text-gray-950"
                     />
                 </div>
                 <div>
@@ -49,7 +49,7 @@ const Search = () => {
                         value={daysOfWeek}
                         onChange={(e) => setDaysOfWeek(e.target.value)}
                         placeholder="e.g., Monday, Wednesday"
-                        className="border p-2 w-full"
+                        className="border p-2 w-full  text-gray-950"
                     />
                 </div>
                 <div>
@@ -58,7 +58,7 @@ const Search = () => {
                         type="time"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="border p-2 w-full"
+                        className="border p-2 w-full  text-gray-950"
                     />
                 </div>
                 <div>
@@ -67,7 +67,7 @@ const Search = () => {
                         type="time"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="border p-2 w-full"
+                        className="border p-2 w-full  text-gray-950"
                     />
                 </div>
                 <div>
@@ -75,7 +75,7 @@ const Search = () => {
                     <select
                         value={isFull}
                         onChange={(e) => setIsFull(e.target.value)}
-                        className="border p-2 w-full"
+                        className="border p-2 w-full text-gray-950"
                     >
                         <option value="">Any</option>
                         <option value="true">Full</option>

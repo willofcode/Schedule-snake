@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState, useContext, createContext } from "react";
 import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
+import { text } from "stream/consumers";
 
 // Create a UserContext to manage user roles
 const UserContext = createContext({ userRole: "professor" });
@@ -17,12 +18,19 @@ export default function Calendar() {
             flexGrow: "1"
         },
         contextMenu: {
+            text: "text-gray-950",
             backgroundColor: "#ffffff",
             color: "#000000",
             border: "1px solid #ccc",
             font: "16px 'Segoe UI', Arial, sans-serif",
             borderRadius: "4px",
             padding: "10px"
+        },
+        form: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            font: "text-gray-950",
         },
         contextMenuItem: {
             padding: "10px",
@@ -32,7 +40,10 @@ export default function Calendar() {
             backgroundColor: "#f0f0f0"
         },
         modal: {
-            color: "#000000"
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            font: "text-gray-950",
         }
     };
 
@@ -150,7 +161,7 @@ export default function Calendar() {
         viewType: "Week",
         durationBarVisible: false,
         businessBeginsHour: 7,
-        businessEndsHour: 19,
+        businessEndsHour: 20,
         startDate: DayPilot.Date.today().firstDayOfWeek()
     };
 
