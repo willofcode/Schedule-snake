@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useContext, createContext } from "react";
 import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
 
-// Create a UserContext to manage user roles
 const UserContext = createContext({ userRole: "professor" });
 
 export default function Calendar() {
@@ -82,13 +81,11 @@ export default function Calendar() {
                     {
                         text: "View Details",
                         onClick: async (args) => {
-                            // Enroll logic here
                         },
                     },
                     {
                         text: "Drop",
                         onClick: async (args) => {
-                            // Drop logic here
                         },
                     },
                 ],
@@ -201,13 +198,13 @@ export default function Calendar() {
     };
 
     return (
-        <UserContext.Provider value={{ userRole: "professor" }}> {/* Change userRole to "student" to test student view */}
+        <UserContext.Provider value={{ userRole: "professor" }}> {}
             <div>
                 <div className="flex justify-between items-center mt-20 max-w-screen-lg mx-auto">
                     <button onClick={handlePreviousWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
                         Prev Week
                     </button>
-                    <h1 className="text-2xl my-5 text-white font-light">Schedule Builder</h1>
+                    <h1 className="text-2xl my-5 text-black font-light">Schedule Builder</h1>
                     <button onClick={handleNextWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
                         Next Week
                     </button>

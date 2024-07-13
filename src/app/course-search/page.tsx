@@ -8,14 +8,12 @@ const Search = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     
-    // State variables for search filters
     const [courseName, setCourseName] = useState(searchParams?.get('courseName') || '');
     const [daysOfWeek, setDaysOfWeek] = useState(searchParams?.get('daysOfWeek') || '');
     const [startTime, setStartTime] = useState(searchParams?.get('startTime') || '');
     const [endTime, setEndTime] = useState(searchParams?.get('endTime') || '');
     const [isFull, setIsFull] = useState(searchParams?.get('isFull') || '');
 
-    // Handle form submission
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const query = new URLSearchParams({

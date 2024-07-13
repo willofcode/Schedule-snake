@@ -5,3 +5,5 @@
 - ~~Fully set up Docker container~~
 - Setup Next.JS environment
 - Writing out pitch for 7/5 (Friday)
+- searchbar template
+- schedule builder template
