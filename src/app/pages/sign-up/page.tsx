@@ -1,5 +1,8 @@
 'use client';
 import {FormEvent, useState} from 'react';
+// future adjustments
+// give feature to click "sign up as a professor" with a required code for signing up as a professor
+// this would then swap the sign up form, also adding a code for input field.
 interface FormData {
     studentID: string;
     studentEmail: string;
