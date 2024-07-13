@@ -20,9 +20,21 @@ export default function SignUp() {
          });
     };
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
+        const apiCall = `/api/insertInto?table=student&category=id&category=email&category=password&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`
+        try {
+            const response = await fetch(apiCall, {
+                method: 'POST'
+            });
+            if (!response.ok) {
+                throw new Error('Error occurred in the network response');
+            }
+            const result = await response.json();
+            console.log("Form submitted", result);
+        } catch (error) {
+            console.error("Could not complete insert into query", error);
+        }
     };
 
     return (
