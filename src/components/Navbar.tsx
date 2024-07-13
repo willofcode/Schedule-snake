@@ -12,14 +12,17 @@ const Navbar = () => {
                         </Link>
                     </div>
                     <div className="flex space-x-4 items-center">
-                        <Link href="/course-search" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
+                        <Link href="/pages/course-search" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
                             Course Search
                         </Link>
-                        <Link href="/my-schedule" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
+                        <Link href="/pages/my-schedule" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
                             My Schedule
                         </Link>
-                        <Link href="/settings" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
+                        <Link href="/pages/settings" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
                             Settings
+                        </Link>
+                        <Link href="/pages/sign-up" className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium">
+                            Sign up
                         </Link>
                         <div className="flex items-center">
                             <Image
