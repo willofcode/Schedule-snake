@@ -1,5 +1,6 @@
 "use client";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   studentID: string;
@@ -8,6 +9,7 @@ interface FormData {
 }
 
 export default function SignUp() {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     studentID: "",
     studentEmail: "",
@@ -24,7 +26,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const apiCall = `/api/insertInto?table=student&columns=id,email,password&values='${formData.studentID}','${formData.studentEmail}','${formData.password}'`;
+    const apiCall = `/api/insertInto?table=student&category=id&category=email&category=password&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
     try {
       const response = await fetch(apiCall, {
         method: "POST",
@@ -32,10 +34,14 @@ export default function SignUp() {
       if (!response.ok) {
         throw new Error("Error occurred in the network response");
       }
-      localStorage.setItem("email (student)", formData.studentEmail);
+      localStorage.setItem("email", formData.studentEmail);
       localStorage.setItem("password", formData.password);
       const result = await response.json();
       console.log("Form submitted", result);
+      router.push("/");
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
       console.error("Could not complete insert into query", error);
     }

@@ -45,7 +45,9 @@ export default function SignIn() {
       localStorage.setItem("password", formData.password);
       console.log("Login Successful", result.results.password);
       router.push("/");
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
       console.log("Login was not successful", error);
     }
