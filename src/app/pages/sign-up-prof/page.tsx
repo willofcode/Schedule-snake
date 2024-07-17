@@ -1,6 +1,7 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface FormData {
   signUpCode: string;
@@ -125,6 +126,9 @@ export default function SignUp() {
           Sign Up
         </button>
       </form>
+      <div className="mt-4 text-[#1329E9] text-sm">
+        <Link href="/pages/sign-up">Click to register as a student</Link>
+      </div>
     </main>
   );
 }

@@ -106,7 +106,7 @@ export default function SignUp() {
           Sign Up
         </button>
       </form>
-      <div>
+      <div className="mt-4 text-[#1329E9] text-sm">
         <Link href="/pages/sign-up-prof">Click to register as a professor</Link>
       </div>
     </main>
