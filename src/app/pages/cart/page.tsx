@@ -7,7 +7,48 @@ import { useState } from "react";
 
 const newsreader = Newsreader({ subsets: ["latin"] });
 
+const student_id = 5;
+
 const Cart = () => {
+  function generateRandomSeed(min = 1000, max = 9999) {
+    const randomValue = Math.random();
+
+    const seed = Math.floor(randomValue * (max - min + 1)) + min;
+
+    return seed;
+  }
+
+  const randomSeed = generateRandomSeed();
+  console.log(randomSeed);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const studentId = 5;
+    const courseIds = courses.map((course) => course.id);
+
+    try {
+      for (const courseId of courseIds) {
+        const apiUrl = `/api/insertInto?table=enrollment&category=student_id&category=class_id&value=${studentId}&value=${courseId}`;
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+          throw new Error("Error occurred in the network response");
+        }
+
+        const result = await response.json();
+        console.log(`Course ID ${courseId} inserted:`, result);
+      }
+
+      console.log("All course IDs submitted successfully!");
+    } catch (error) {
+      console.error("Error occurred during insertions:", error);
+    }
+  };
+
   const [courses, setCourses] = useState([
     {
       id: 1,
@@ -54,10 +95,6 @@ const Cart = () => {
   const handleDeleteCourse = (id: number) => {
     const updatedCourses = courses.filter((course) => course.id !== id);
     setCourses(updatedCourses);
-  };
-
-  const handleSubmit = () => {
-    console.log("Form submitted!");
   };
 
   return (
