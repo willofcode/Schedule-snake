@@ -27,17 +27,31 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const apiCall = `/api/insertInto?table=student&category=id&category=email&category=password&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
     try {
-      const response = await fetch(apiCall, {
+      const userTableCall = `/api/insertInto?table=users&category=userType&value='student'`;
+      const userTableResponse = await fetch(userTableCall, {
         method: "POST",
       });
-      if (!response.ok) {
-        throw new Error("Error occurred in the network response");
+      if (!userTableResponse.ok) {
+        throw new Error("Error with the users table");
+      }
+      const userTableResult = await userTableResponse.json();
+      console.log("User table result:", userTableResult);
+      const userID = userTableResult.results.insertId;
+      if (!userID) {
+        throw new Error("Failed to retrieve the user ID");
+      }
+      const mainCall = `/api/insertInto?table=student&category=userID&category=studentID&category=email&category=password&value='${userID}'&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
+      const studentApiCall = await fetch(mainCall, {
+        method: "POST",
+      });
+      if (!studentApiCall.ok) {
+        throw new Error("Error with the student table");
       }
       localStorage.setItem("email", formData.studentEmail);
       localStorage.setItem("password", formData.password);
-      const result = await response.json();
+      localStorage.setItem("userType", "student");
+      const result = await studentApiCall.json();
       console.log("Form submitted", result);
       router.push("/");
       setTimeout(() => {
