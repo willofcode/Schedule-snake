@@ -15,14 +15,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-        <body className={`${inter.className} h-full`}>
+  return (
+    <html lang="en">
+      <body className={`${inter.className} h-full`}>
         <Navbar />
-        <main className="flex-grow pt-16 overflow-hidden">
-            {children}
-        </main>
-        </body>
-        </html>
-    );
+        <main className="flex-grow pt-16 overflow-hidden">{children}</main>
+      </body>
+    </html>
+  );
 }

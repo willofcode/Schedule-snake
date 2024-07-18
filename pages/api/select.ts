@@ -3,7 +3,7 @@ import db from "@/../config/db";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method not allowed" });
@@ -18,7 +18,7 @@ export default async function handler(
     return res.status(400).json({ message: "This query requires a table" });
   }
 
-  if (!validTables.includes(table as String)) {
+  if (!validTables.includes(table as string)) {
     return res.status(400).json({ message: "Not a valid table" });
   }
 
@@ -35,10 +35,9 @@ export default async function handler(
           } else {
             resolve(results);
           }
-        },
+        }
       );
     });
-
     console.log("GET request successful:", results);
     res.status(200).json({ message: "GET request successful", results });
   } catch (error) {
