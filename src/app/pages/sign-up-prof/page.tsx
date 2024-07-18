@@ -4,20 +4,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface FormData {
-  studentID: string;
-  studentEmail: string;
+  signUpCode: string;
+  email: string;
   password: string;
+  fullName: string;
 }
 
 export default function SignUp() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
-    studentID: "",
-    studentEmail: "",
+    signUpCode: "",
+    email: "",
     password: "",
+    fullName: "",
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -27,15 +29,18 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const apiCall = `/api/insertInto?table=student&category=id&category=email&category=password&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
     try {
+      if (formData.signUpCode !== "A8b2C5dX7F") {
+        throw new Error("Error, wrong sign up code.");
+      }
+      const apiCall = `/api/insertInto?table=professor&category=email&category=password&category=fullname&value='${formData.email}'&value='${formData.password}'&value='${formData.fullName}'`;
       const response = await fetch(apiCall, {
         method: "POST",
       });
       if (!response.ok) {
         throw new Error("Error occurred in the network response");
       }
-      localStorage.setItem("email", formData.studentEmail);
+      localStorage.setItem("email", formData.email);
       localStorage.setItem("password", formData.password);
       const result = await response.json();
       console.log("Form submitted", result);
@@ -56,30 +61,30 @@ export default function SignUp() {
       >
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Student ID
+            Sign Up Code
           </label>
           <input
             type="text"
-            id="studentID"
-            name="studentID"
+            id="signUpCode"
+            name="signUpCode"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Value"
-            value={formData.studentID}
+            value={formData.signUpCode}
             onChange={handleChange}
             required
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Student Email
+            Email
           </label>
           <input
             type="text"
-            id="studentEmail"
-            name="studentEmail"
+            id="email"
+            name="email"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Value"
-            value={formData.studentEmail}
+            value={formData.email}
             onChange={handleChange}
             required
           />
@@ -99,6 +104,21 @@ export default function SignUp() {
             required
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="Value"
+            value={formData.fullName}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <button
           type="submit"
           className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -107,7 +127,7 @@ export default function SignUp() {
         </button>
       </form>
       <div className="mt-4 text-[#1329E9] text-sm">
-        <Link href="/pages/sign-up-prof">Click to register as a professor</Link>
+        <Link href="/pages/sign-up">Click to register as a student</Link>
       </div>
     </main>
   );

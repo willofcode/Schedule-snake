@@ -1,23 +1,20 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 interface FormData {
-  studentID: string;
-  studentEmail: string;
+  email: string;
   password: string;
 }
 
-export default function SignUp() {
+export default function SignIn() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
-    studentID: "",
-    studentEmail: "",
+    email: "",
     password: "",
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -27,24 +24,32 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const apiCall = `/api/insertInto?table=student&category=id&category=email&category=password&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
+    const apiCall = `/api/select?table=student&columns=email,password&condition=email='${formData.email}';`;
     try {
       const response = await fetch(apiCall, {
-        method: "POST",
+        method: "GET",
       });
       if (!response.ok) {
-        throw new Error("Error occurred in the network response");
+        throw new Error("Error with the network response");
       }
-      localStorage.setItem("email", formData.studentEmail);
+      const result = await response.json(); // after applying .json() conversion, we checkout the logic below:
+      if (result.results.length === 0) {
+        throw new Error(
+          "Credentials do not exist. Please sign up or try again.",
+        );
+      }
+      if (result.results[0].password !== formData.password) {
+        throw new Error("Password is incorrect. Please try again.");
+      }
+      localStorage.setItem("email", formData.email);
       localStorage.setItem("password", formData.password);
-      const result = await response.json();
-      console.log("Form submitted", result);
+      console.log("Login Successful", result.results.password);
       router.push("/");
       setTimeout(() => {
         window.location.reload();
       }, 100);
     } catch (error) {
-      console.error("Could not complete insert into query", error);
+      console.log("Login was not successful", error);
     }
   };
 
@@ -56,30 +61,15 @@ export default function SignUp() {
       >
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Student ID
-          </label>
-          <input
-            type="text"
-            id="studentID"
-            name="studentID"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Value"
-            value={formData.studentID}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
             Student Email
           </label>
           <input
             type="text"
-            id="studentEmail"
-            name="studentEmail"
+            id="email"
+            name="email"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Value"
-            value={formData.studentEmail}
+            value={formData.email}
             onChange={handleChange}
             required
           />
@@ -103,12 +93,9 @@ export default function SignUp() {
           type="submit"
           className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Sign Up
+          Sign In
         </button>
       </form>
-      <div className="mt-4 text-[#1329E9] text-sm">
-        <Link href="/pages/sign-up-prof">Click to register as a professor</Link>
-      </div>
     </main>
   );
 }
