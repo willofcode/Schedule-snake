@@ -33,7 +33,21 @@ export default function SignUp() {
       if (formData.signUpCode !== "A8b2C5dX7F") {
         throw new Error("Error, wrong sign up code.");
       }
-      const apiCall = `/api/insertInto?table=professor&category=email&category=password&category=fullname&value='${formData.email}'&value='${formData.password}'&value='${formData.fullName}'`;
+      const userTableCall = `/api/insertInto?table=users&category=userType&value='professor'`;
+      const userTableResponse = await fetch(userTableCall, {
+        method: "POST",
+      });
+      if (!userTableResponse.ok) {
+        throw new Error("Error with the users table");
+      }
+      const userTableResult = await userTableResponse.json();
+      const userID = userTableResult.results.insertId;
+      if (!userID) {
+        throw new Error("Failed to retrieve the user ID");
+      }
+
+
+      const apiCall = `/api/insertInto?table=professor&category=userID&category=email&category=password&category=fullname&value='${userID}'&value='${formData.email}'&value='${formData.password}'&value='${formData.fullName}'`;
       const response = await fetch(apiCall, {
         method: "POST",
       });
@@ -42,6 +56,8 @@ export default function SignUp() {
       }
       localStorage.setItem("email", formData.email);
       localStorage.setItem("password", formData.password);
+      localStorage.setItem("userType", "professor");
+      localStorage.setItem("userID", userID);
       const result = await response.json();
       console.log("Form submitted", result);
       router.push("/");

@@ -24,30 +24,63 @@ export default function SignIn() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const apiCall = `/api/select?table=student&columns=email,password&condition=email='${formData.email}';`;
+
     try {
-      const response = await fetch(apiCall, {
+      const checkStudent = `/api/select?table=student&columns=userID,email,password&condition=email='${formData.email}';`;
+      const studentResponse = await fetch(checkStudent, {
         method: "GET",
       });
-      if (!response.ok) {
+      if (!studentResponse.ok) {
         throw new Error("Error with the network response");
       }
-      const result = await response.json(); // after applying .json() conversion, we checkout the logic below:
-      if (result.results.length === 0) {
-        throw new Error(
-          "Credentials do not exist. Please sign up or try again.",
-        );
+      const studentResult = await studentResponse.json(); // after applying .json() conversion, we checkout the logic below:
+      if (studentResult.results.length > 0) {
+        const userID = studentResult.results[0].userID;
+        if (studentResult.results[0].password !== formData.password) {
+          throw new Error("Password is incorrect. Please try again.");
+        }
+        localStorage.setItem("email", formData.email);
+        localStorage.setItem("password", formData.password);
+        localStorage.setItem("userType", "student");
+        localStorage.setItem("userID ", userID);
+        console.log("Login Successful", studentResult.results[0].password);
+        router.push("/");
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+        return;
       }
-      if (result.results[0].password !== formData.password) {
-        throw new Error("Password is incorrect. Please try again.");
+
+      const professorApiCall = `/api/select?table=professor&columns=userID,email,password&condition=email='${formData.email}'`;
+      const professorResponse = await fetch(professorApiCall, {
+        method: "GET",
+      });
+
+      if (!professorResponse.ok) {
+        throw new Error("Error with the network response");
       }
-      localStorage.setItem("email", formData.email);
-      localStorage.setItem("password", formData.password);
-      console.log("Login Successful", result.results.password);
-      router.push("/");
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+
+      const professorResult = await professorResponse.json();
+
+      if (professorResult.results.length > 0) {
+        const userID = professorResult.results[0].userID;
+        if (professorResult.results[0].password !== formData.password) {
+          throw new Error("Password is incorrect. Please try again.");
+        }
+        localStorage.setItem("email", formData.email);
+        localStorage.setItem("password", formData.password);
+        localStorage.setItem("userType", "professor");
+        localStorage.setItem("userID", userID)
+        console.log("Login Successful", professorResult.results[0].password);
+        router.push("/");
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+        return;
+      }
+
+      // If no user is found in either table
+      throw new Error("Credentials do not exist. Please sign up or try again.");
     } catch (error) {
       console.log("Login was not successful", error);
     }
@@ -73,7 +106,7 @@ export default function SignIn() {
             onChange={handleChange}
             required
           />
-        </div>\
+        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Password

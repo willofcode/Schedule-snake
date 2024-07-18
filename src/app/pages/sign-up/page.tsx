@@ -36,11 +36,12 @@ export default function SignUp() {
         throw new Error("Error with the users table");
       }
       const userTableResult = await userTableResponse.json();
-      console.log("User table result:", userTableResult);
       const userID = userTableResult.results.insertId;
       if (!userID) {
         throw new Error("Failed to retrieve the user ID");
       }
+
+
       const mainCall = `/api/insertInto?table=student&category=userID&category=studentID&category=email&category=password&value='${userID}'&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
       const studentApiCall = await fetch(mainCall, {
         method: "POST",
@@ -51,6 +52,7 @@ export default function SignUp() {
       localStorage.setItem("email", formData.studentEmail);
       localStorage.setItem("password", formData.password);
       localStorage.setItem("userType", "student");
+      localStorage.setItem("userID", userID);
       const result = await studentApiCall.json();
       console.log("Form submitted", result);
       router.push("/");
