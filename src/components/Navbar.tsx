@@ -60,10 +60,6 @@ const Navbar = () => {
               className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
             >
               Settings
-              href="/pages/settings"
-              className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
-            >
-              Settings
             </Link>
             <Link
               href={navLink}
