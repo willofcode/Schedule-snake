@@ -28,7 +28,7 @@ const CourseSearch = () => {
           throw new Error("Could not retrieve courses");
         }
         const data = await response.json();
-        const getDays = `/api/select?table=course&columns`
+        const getDays = `/api/select?table=course_days&columns=`
         const fetchedDetails: Course[] = data.map((item: any) => ({
           id:,
           title:,
