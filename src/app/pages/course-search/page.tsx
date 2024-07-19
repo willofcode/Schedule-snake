@@ -2,35 +2,61 @@
 import React from "react";
 import { Newsreader } from "next/font/google";
 import CourseItem from "./courses";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const newsreader = Newsreader({ subsets: ["latin"] });
+
+interface Course {
+  id: number;
+  title: string;
+  desc: string;
+  days: string;
+  startTime: string;
+  endTime: string;
+}
 const CourseSearch = () => {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: "Computer Organization",
-      description: "VHDL",
-      daysOfWeek: "Monday",
-      startTime: 900,
-      endTime: 1130,
-    },
-    {
-      id: 2,
-      title: "Database Fundamentals",
-      description: "MySQL",
-      daysOfWeek: "Wednesday",
-      startTime: 1700,
-      endTime: 1930,
-    },
-  ]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  useEffect(() => {
+    const getCourses = async () => {
+      try {
+        const getCall = `/api/select?table=course&columns=courseID,courseName,courseDesc,startTime,endTime`;
+
+        const response = await fetch(getCall, {
+          method: "GET",
+        });
+        if (!response.ok) {
+          throw new Error("Could not retrieve courses");
+        }
+        const data = await response.json();
+        const getDays = `/api/select?table=course&columns`
+        const fetchedDetails: Course[] = data.map((item: any) => ({
+          id:,
+          title:,
+          desc:,
+          days:,
+          startTime:,
+          endTime:,
+        }));
+      }
+    }
+  })
+
   const handleAddToCart = (id: number) => {
     const selectedCourse = courses.find((course) => course.id === id);
+
     if (selectedCourse) {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      cart.push(selectedCourse);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      console.log("Course added to cart successfully", selectedCourse);
+      const isCourseInCart = cart.some(
+        (course: { id: number }) => course.id === id,
+      );
+
+      if (isCourseInCart) {
+        console.log("Already added to cart", selectedCourse);
+      } else {
+        cart.push(selectedCourse);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        console.log("Course added to cart successfully", selectedCourse);
+      }
     }
   };
   return (
