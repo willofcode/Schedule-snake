@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import db from '@/../config/db';
+import db from '../../config/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'GET') {
@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
             console.log("Database connection successful:", results);
             res.status(200).json({ message: 'Database connection successful', results });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error connecting to the database:", error);
             res.status(500).json({ message: 'Error connecting to the database', error: error.message });
         }

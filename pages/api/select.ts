@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import db from '@/../config/db';
+import db from '../../config/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'GET') {
@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: 'This query requires a table'});
     }
 
-    if (!validTables.includes(table as String)) {
+    if (!validTables.includes(table as string)) {
         return res.status(400).json({ message: 'Not a valid table' });
     }
 
@@ -36,6 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({ message: 'GET request successful', results });
     } catch (error) {
         console.error(`Error querying ${table} table:`, error);
-        res.status(500).json({ message: `Could not query ${table}`, error: error.message});
+        res.status(500).json({ message: `Could not query ${table}`, error: error instanceof Error ? error.message : String(error)});
     }
 }

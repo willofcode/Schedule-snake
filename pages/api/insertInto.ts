@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import db from '@/../config/db';
+import db from '../../config/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
@@ -36,7 +36,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(500).json({ message: 'INSERT INTO request successful', results});
     } catch (error) {
         console.error(`Error inserting into ${table} table:`, error);
-        res.status(500).json({ message: `Could not insert into ${table}`, error: error.message});
+        if (error instanceof Error) {
+            res.status(500).json({ message: `Could not insert into ${table}`, error: error.message});
+        } else {
+            res.status(500).json({ message: `Could not insert into ${table}`, error: "An unknown error occurred"});
+        }
     }
 
 }

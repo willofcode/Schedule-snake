@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import db from '@/../config/db';
+import db from '../../config/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'DELETE') {
@@ -24,6 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({ message: 'DELETE statement successful', results });
     } catch (error) {
         console.error(`Error deleting row from ${table}:`, error);
-        res.status(500).json({ message: `Could not delete row from ${table}`, error: error.message});
+        res.status(500).json({ message: `Could not delete row from ${table}`, error: error instanceof Error ? error.message : String(error)});
     }
 }

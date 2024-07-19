@@ -13,7 +13,7 @@
     "@daypilot/modal": "^3.17.0",
     "@heroicons/react": "^2.1.5",
     "heroicons-react": "^1.4.1",
-    "mysql2": "^3.10.2",
+    "mysql2": "^3.10.3",
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",
