@@ -20,7 +20,7 @@ const CourseSearch = () => {
   useEffect(() => {
     const getCourses = async () => {
       try {
-        const getCall = `http://localhost:3000/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=course.courseID=1&group_by=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime`;
+        const getCall = `http://localhost:3000/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&group_by=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime`;
 
         const response = await fetch(getCall, {
           method: "GET",
