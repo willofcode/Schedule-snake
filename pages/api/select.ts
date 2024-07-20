@@ -9,7 +9,7 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
   // accepted parameters: (to be updated)
-  const { table, columns, condition, inner_join, on_inner, left_join, on_left, right_join, on_right , group_by} = req.query;
+  const { table, columns, condition, inner_join, on_inner, left_join, on_left, right_join, on_right , group_by, order_by} = req.query;
 
   // currently valid tables we'll use (to be updated also)
   const validTables = ["student", "professor", "users"];
@@ -33,9 +33,10 @@ export default async function handler(
       const requestedRightJoin = right_join ? `RIGHT JOIN ${right_join}` : "";
       const requestedOnRight = on_right ? `ON ${on_right}`: "";
       const requestedGroupBy = group_by ? `GROUP BY ${group_by}`: "";
+      const requestedOrderBy = order_by ? `ORDER BY ${order_by}` : "";
       // only use WHERE above incase we receive nothing as a condition
       db.query(
-        `SELECT ${requestedColumns} FROM ${table} ${requestedCondition} ${requestedInnerJoin} ${requestedOnInner} ${requestedLeftJoin} ${requestedOnLeft} ${requestedRightJoin} ${requestedOnRight} ${requestedGroupBy};`,
+        `SELECT ${requestedColumns} FROM ${table} ${requestedCondition} ${requestedInnerJoin} ${requestedOnInner} ${requestedLeftJoin} ${requestedOnLeft} ${requestedRightJoin} ${requestedOnRight} ${requestedGroupBy} ${requestedOrderBy};`,
         (err: any, results: any) => {
           if (err) {
             reject(err);
