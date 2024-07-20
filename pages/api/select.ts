@@ -9,10 +9,10 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
   // accepted parameters: (to be updated)
-  const { table, columns, condition } = req.query;
+  const { table, columns, condition, inner_join, on_inner, left_join, on_left, right_join, on_right , group_by, order_by} = req.query;
 
   // currently valid tables we'll use (to be updated also)
-  const validTables = ["student", "professor"];
+  const validTables = ["student", "professor", "users"];
 
   if (!table) {
     return res.status(400).json({ message: "This query requires a table" });
@@ -26,9 +26,17 @@ export default async function handler(
     const results = await new Promise((resolve, reject) => {
       const requestedColumns = columns ? columns.toString() : "*";
       const requestedCondition = condition ? `WHERE ${condition}` : "";
+      const requestedInnerJoin = inner_join ? `INNER JOIN ${inner_join}` : "";
+      const requestedOnInner = on_inner ? `ON ${on_inner}` : "";
+      const requestedLeftJoin = left_join ? `LEFT JOIN ${left_join}` : "";
+      const requestedOnLeft = on_left ? `ON ${on_left}` : "";
+      const requestedRightJoin = right_join ? `RIGHT JOIN ${right_join}` : "";
+      const requestedOnRight = on_right ? `ON ${on_right}`: "";
+      const requestedGroupBy = group_by ? `GROUP BY ${group_by}`: "";
+      const requestedOrderBy = order_by ? `ORDER BY ${order_by}` : "";
       // only use WHERE above incase we receive nothing as a condition
       db.query(
-        `SELECT ${requestedColumns} FROM ${table} ${requestedCondition};`,
+        `SELECT ${requestedColumns} FROM ${table} ${requestedCondition} ${requestedInnerJoin} ${requestedOnInner} ${requestedLeftJoin} ${requestedOnLeft} ${requestedRightJoin} ${requestedOnRight} ${requestedGroupBy} ${requestedOrderBy};`,
         (err: any, results: any) => {
           if (err) {
             reject(err);
