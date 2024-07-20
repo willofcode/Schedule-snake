@@ -16,6 +16,7 @@ interface Course {
 }
 const CourseSearch = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+
   useEffect(() => {
     const getCourses = async () => {
       try {
@@ -28,17 +29,22 @@ const CourseSearch = () => {
           throw new Error("Could not retrieve courses");
         }
         const data = await response.json();
-        const fetchedDetails: Course[] = data.map((item: any) => ({
-          id: data.result.courseID,
-          title: data.result.couseName,
-          desc: data.result.courseDesc,
-          days: data.result.dayNames,
-          startTime: data.result.startTime,
-          endTime: data.result.endTime,
+        const fetchedDetails: Course[] = data.results.map((item: any) => ({
+          id: item.courseID,
+          title: item.courseName,
+          desc: item.courseDesc,
+          days: item.dayNames,
+          startTime: item.startTime,
+          endTime: item.endTime,
         }));
+        setCourses(fetchedDetails);
+      } catch (error) {
+        console.log("Error querying the courses", error);
       }
-    }
-  })
+    };
+
+    getCourses();
+  }, []);
 
   const handleAddToCart = (id: number) => {
     const selectedCourse = courses.find((course) => course.id === id);
