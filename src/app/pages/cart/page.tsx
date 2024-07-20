@@ -1,30 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CourseItem from "./courses";
 import { Newsreader } from "next/font/google";
-import { useState } from "react";
 
 const newsreader = Newsreader({ subsets: ["latin"] });
 
-const student_id = 5;
-
 const Cart = () => {
-  function generateRandomSeed(min = 1000, max = 9999) {
-    const randomValue = Math.random();
+  const [courses, setCourses] = useState([]);
 
-    const seed = Math.floor(randomValue * (max - min + 1)) + min;
-
-    return seed;
-  }
-
-  const randomSeed = generateRandomSeed();
-  console.log(randomSeed);
+  useEffect(() => {
+    const savedCourses = localStorage.getItem("cart");
+    if (savedCourses) {
+      setCourses(JSON.parse(savedCourses));
+    }
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    const studentId = 5;
+    const studentId = localStorage.getItem("userID");
     const courseIds = courses.map((course) => course.id);
 
     try {
@@ -49,52 +44,10 @@ const Cart = () => {
     }
   };
 
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: "Course 1",
-      description: "Description for course 1",
-      daysOfWeek: "Monday",
-      startTime: 1200,
-      endTime: 1300,
-    },
-    {
-      id: 2,
-      title: "Course 2",
-      description: "Description for course 2",
-      daysOfWeek: "Monday",
-      startTime: 1200,
-      endTime: 1300,
-    },
-    {
-      id: 3,
-      title: "Course 3",
-      description: "Description for course 3",
-      daysOfWeek: "Monday",
-      startTime: 1200,
-      endTime: 1300,
-    },
-    {
-      id: 4,
-      title: "Course 4",
-      description: "Description for course 4",
-      daysOfWeek: "Tuesday/Thursday",
-      startTime: 800,
-      endTime: 1300,
-    },
-    {
-      id: 5,
-      title: "Course 5",
-      description: "Description for course 5",
-      daysOfWeek: "Monday",
-      startTime: 1230,
-      endTime: 1300,
-    },
-  ]);
-
   const handleDeleteCourse = (id: number) => {
     const updatedCourses = courses.filter((course) => course.id !== id);
     setCourses(updatedCourses);
+    localStorage.setItem("cart", JSON.stringify(updatedCourses));
   };
 
   return (
