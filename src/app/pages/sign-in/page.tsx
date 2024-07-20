@@ -26,7 +26,7 @@ export default function SignIn() {
     e.preventDefault();
     localStorage.removeItem("cart");
     try {
-      const checkStudent = `/api/select?table=student&columns=userID,email,password&condition=email='${formData.email}';`;
+      const checkStudent = `/api/select?table=student&columns=studentID,userID,email,password&condition=email='${formData.email}';`;
       const studentResponse = await fetch(checkStudent, {
         method: "GET",
       });
@@ -43,6 +43,8 @@ export default function SignIn() {
         localStorage.setItem("password", formData.password);
         localStorage.setItem("userType", "student");
         localStorage.setItem("userID ", userID);
+        const studentID = studentResult.results[0].studentID;
+        localStorage.setItem("studentID", studentID);
         console.log("Login Successful", studentResult.results[0].password);
         router.push("/");
         setTimeout(() => {
