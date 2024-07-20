@@ -29,11 +29,12 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    localStorage.removeItem("cart");
     try {
       if (formData.signUpCode !== "A8b2C5dX7F") {
         throw new Error("Error, wrong sign up code.");
       }
-      const userTableCall = `/api/insertInto?table=users&category=userType&value='professor'`;
+      const userTableCall = `/api/insertInto?table=users&category=userType&&category=email&category=password&value='professor'&value='${formData.email}'&value='${formData.password}'`;
       const userTableResponse = await fetch(userTableCall, {
         method: "POST",
       });
@@ -45,7 +46,6 @@ export default function SignUp() {
       if (!userID) {
         throw new Error("Failed to retrieve the user ID");
       }
-
 
       const apiCall = `/api/insertInto?table=professor&category=userID&category=email&category=password&category=fullname&value='${userID}'&value='${formData.email}'&value='${formData.password}'&value='${formData.fullName}'`;
       const response = await fetch(apiCall, {

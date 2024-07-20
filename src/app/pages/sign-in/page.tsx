@@ -24,9 +24,9 @@ export default function SignIn() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    localStorage.removeItem("cart");
     try {
-      const checkStudent = `/api/select?table=student&columns=userID,email,password&condition=email='${formData.email}';`;
+      const checkStudent = `/api/select?table=student&columns=studentID,userID,email,password&condition=email='${formData.email}';`;
       const studentResponse = await fetch(checkStudent, {
         method: "GET",
       });
@@ -43,6 +43,8 @@ export default function SignIn() {
         localStorage.setItem("password", formData.password);
         localStorage.setItem("userType", "student");
         localStorage.setItem("userID ", userID);
+        const studentID = studentResult.results[0].studentID;
+        localStorage.setItem("studentID", studentID);
         console.log("Login Successful", studentResult.results[0].password);
         router.push("/");
         setTimeout(() => {
@@ -70,7 +72,7 @@ export default function SignIn() {
         localStorage.setItem("email", formData.email);
         localStorage.setItem("password", formData.password);
         localStorage.setItem("userType", "professor");
-        localStorage.setItem("userID", userID)
+        localStorage.setItem("userID", userID);
         console.log("Login Successful", professorResult.results[0].password);
         router.push("/");
         setTimeout(() => {
@@ -94,7 +96,7 @@ export default function SignIn() {
       >
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Student Email
+            Email
           </label>
           <input
             type="text"
