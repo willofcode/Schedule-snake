@@ -19,7 +19,7 @@ const CourseSearch = () => {
   useEffect(() => {
     const getCourses = async () => {
       try {
-        const getCall = `/api/select?table=course&columns=courseID,courseName,courseDesc,startTime,endTime`;
+        const getCall = `/api/select?table=course&columns=course.courseID,courseName,courseDesc,startTime,endTime`;
 
         const response = await fetch(getCall, {
           method: "GET",
@@ -28,14 +28,13 @@ const CourseSearch = () => {
           throw new Error("Could not retrieve courses");
         }
         const data = await response.json();
-        const getDays = `/api/select?table=course_days&columns=`
         const fetchedDetails: Course[] = data.map((item: any) => ({
-          id:,
-          title:,
-          desc:,
+          id: data.result.courseID,
+          title: data.result.couseName,
+          desc: data.result.courseDesc,
           days:,
-          startTime:,
-          endTime:,
+          startTime: data.result.startTime,
+          endTime: data.result.endTime,
         }));
       }
     }
@@ -85,3 +84,9 @@ const CourseSearch = () => {
 };
 
 export default CourseSearch;
+// SELECT course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime, GROUP_CONCAT(days.dayName) AS dayNames
+// FROM course
+// JOIN course_days ON course.courseID = course_days.courseID
+// JOIN days ON course_days.dayID = days.dayID
+// WHERE course.courseID =
+// GROUP BY course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime;
