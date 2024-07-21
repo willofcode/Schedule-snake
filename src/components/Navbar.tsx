@@ -38,25 +38,25 @@ const Navbar = () => {
           </div>
           <div className="flex space-x-4 items-center">
             <Link
-              href="/course-search"
+              href="/pages/course-search"
               className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
             >
               Course Search
             </Link>
             <Link
-              href="/my-schedule"
+              href="/pages/my-schedule"
               className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
             >
               My Schedule
             </Link>
             <Link
-              href="pages/cart"
+              href="/pages/cart"
               className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
             >
               Cart
             </Link>
             <Link
-              href="/settings"
+              href="/pages/settings"
               className="text-[20px] text-gray-800 hover:text-teal-500 px-3 py-2 rounded-md font-medium"
             >
               Settings

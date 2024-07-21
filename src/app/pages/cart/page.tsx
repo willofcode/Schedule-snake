@@ -1,35 +1,45 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CourseItem from "./courses";
 import { Newsreader } from "next/font/google";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const newsreader = Newsreader({ subsets: ["latin"] });
-
-const student_id = 5;
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  daysOfWeek: string;
+  startTime: number;
+  endTime: number;
+}
 
 const Cart = () => {
-  function generateRandomSeed(min = 1000, max = 9999) {
-    const randomValue = Math.random();
+  const router = useRouter();
+  const [courses, setCourses] = useState<Course[]>([]);
 
-    const seed = Math.floor(randomValue * (max - min + 1)) + min;
+  useEffect(() => {
+    const savedCourses = localStorage.getItem("cart");
+    if (savedCourses) {
+      setCourses(JSON.parse(savedCourses));
+    }
+  }, []);
 
-    return seed;
-  }
-
-  const randomSeed = generateRandomSeed();
-  console.log(randomSeed);
-
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const studentId = 5;
+    const studentId = localStorage.getItem("studentID");
+    if (!studentId) {
+      console.error("User ID not found in localStorage");
+      return;
+    }
+
     const courseIds = courses.map((course) => course.id);
 
     try {
       for (const courseId of courseIds) {
-        const apiUrl = `/api/insertInto?table=enrollment&category=student_id&category=class_id&value=${studentId}&value=${courseId}`;
+        const apiUrl = `/api/insertInto?table=enrollment&category=studentID&category=courseID&value=${studentId}&value=${courseId}`;
         const response = await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -42,59 +52,21 @@ const Cart = () => {
         const result = await response.json();
         console.log(`Course ID ${courseId} inserted:`, result);
       }
-
+      localStorage.removeItem("cart");
+      router.push("/");
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
       console.log("All course IDs submitted successfully!");
     } catch (error) {
       console.error("Error occurred during insertions:", error);
     }
   };
 
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: "Course 1",
-      description: "Description for course 1",
-      daysOfWeek: "Monday",
-      startTime: 1200,
-      endTime: 1300,
-    },
-    {
-      id: 2,
-      title: "Course 2",
-      description: "Description for course 2",
-      daysOfWeek: "Monday",
-      startTime: 1200,
-      endTime: 1300,
-    },
-    {
-      id: 3,
-      title: "Course 3",
-      description: "Description for course 3",
-      daysOfWeek: "Monday",
-      startTime: 1200,
-      endTime: 1300,
-    },
-    {
-      id: 4,
-      title: "Course 4",
-      description: "Description for course 4",
-      daysOfWeek: "Tuesday/Thursday",
-      startTime: 800,
-      endTime: 1300,
-    },
-    {
-      id: 5,
-      title: "Course 5",
-      description: "Description for course 5",
-      daysOfWeek: "Monday",
-      startTime: 1230,
-      endTime: 1300,
-    },
-  ]);
-
   const handleDeleteCourse = (id: number) => {
     const updatedCourses = courses.filter((course) => course.id !== id);
     setCourses(updatedCourses);
+    localStorage.setItem("cart", JSON.stringify(updatedCourses));
   };
 
   return (
@@ -120,12 +92,14 @@ const Cart = () => {
             ))}
           </div>
           <div className="mt-8 flex justify-end pb-6">
-            <button
-              onClick={handleSubmit}
-              className="px-6 py-3 bg-[#2D9DB6] text-white rounded-md hover:bg-[#1SAAAAA] focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <strong>Submit</strong>
-            </button>
+            <form onSubmit={handleSubmit}>
+              <button
+                type="submit"
+                className="px-6 py-3 bg-[#2D9DB6] text-white rounded-md hover:bg-[#1SAAAAA] focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <strong>Submit</strong>
+              </button>
+            </form>
           </div>
         </div>
       </div>

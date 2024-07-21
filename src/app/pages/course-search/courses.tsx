@@ -1,11 +1,11 @@
 import React from "react";
-import { FaTrashAlt } from "react-icons/fa";
+import { IoIosAddCircle } from "react-icons/io";
 
-const CourseItem = ({ course, onDelete }: any) => {
+const CourseItem = ({ course, onAdd }: any) => {
   const { id, title, description, daysOfWeek, startTime, endTime } = course;
 
-  const handleDelete = () => {
-    onDelete(id);
+  const handleAdd = () => {
+    onAdd(id);
   };
 
   const formatTime = (time: number) => {
@@ -31,10 +31,10 @@ const CourseItem = ({ course, onDelete }: any) => {
           </p>
         </div>
         <button
-          onClick={handleDelete}
-          className="ml-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+          onClick={handleAdd}
+          className="ml-4 p-2 bg-green-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
         >
-          <FaTrashAlt />
+          <IoIosAddCircle />
         </button>
       </div>
     </div>
