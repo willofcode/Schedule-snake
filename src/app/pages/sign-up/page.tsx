@@ -27,8 +27,9 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    localStorage.removeItem("cart");
     try {
-      const userTableCall = `/api/insertInto?table=users&category=userType&value='student'`;
+      const userTableCall = `/api/insertInto?table=users&category=userType&category=email&category=password&value='student'&value='${formData.studentEmail}'&value='${formData.password}'`;
       const userTableResponse = await fetch(userTableCall, {
         method: "POST",
       });
@@ -40,7 +41,6 @@ export default function SignUp() {
       if (!userID) {
         throw new Error("Failed to retrieve the user ID");
       }
-
 
       const mainCall = `/api/insertInto?table=student&category=userID&category=studentID&category=email&category=password&value='${userID}'&value='${formData.studentID}'&value='${formData.studentEmail}'&value='${formData.password}'`;
       const studentApiCall = await fetch(mainCall, {
