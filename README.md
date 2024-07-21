@@ -1,4 +1,4 @@
-# Getting Started
+# Getting Started (PLEASE READ ME!! 😭😭😭)
 After git cloning, please make a config/db.js file in the project directory. Should look like this:</br>
 ![img.png](img.png)</br>
 Contents of ```db.js``` should be privately sent on Discord.
@@ -15,6 +15,19 @@ Examples:</br>
 ```host/api/select?table=professor```</br>
 ```host/api/select?table=student&columns=name,age,year```</br>
 ```host/api/select?table=student&columns=name&condition=age=22 AND year='Senior'```
+#### JOIN (LEFT, INNER, RIGHT)</br>
+Currently supports LEFT, INNER, and RIGHT JOIN queries. Examples below for LEFT, INNER, and RIGHT JOIN queries:</br>
+```host/api/select?table=users&columns=professor.email&inner_join=professor&on_inner=professor.userID=users.userID```</br>
+```host/api/select?table=users&columns=professor.email&left_join=professor&on_left=professor.userID=users.userID```</br>
+```host/api/select?table=users&columns=professor.email&right_join=professor&on_right=professor.userID=users.userID```</br>
+#### GROUP BY</br>
+Example:</br>
+```host/api/select?table=users&columns=COUNT(userID) as Count,userType&group_by=userType```</br>
+Note this API call may be inefficient in the future, will definitely consider optimizing, but low-priority for now</br>
+#### ORDER BY</br>
+Example:</br>
+```host/api/select?table=professor&order_by=fullname```
+
 ### INSERT INTO statements
 Supports basic parameters table, category, and value where category and value can be inserted multiple times to choose values for all needed columns.
 Note that the API request will detect if the category and values are unequal, requiring a proper API request. The request will also

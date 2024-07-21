@@ -1,227 +1,82 @@
 'use client';
-import React, { useEffect, useState, useContext, createContext } from "react";
+import React, { useEffect, useState } from "react";
 import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
+import { start } from "repl";
 
-const UserContext = createContext({ userRole: "professor" });
+const StudentCalendar = () => {
+  const [calendar, setCalendar] = useState<DayPilot.Calendar>();
+  const [startDate, setStartDate] = useState(DayPilot.Date.today().firstDayOfWeek());
+  const [events, setEvents] = useState<DayPilot.EventData[]>([]);
 
-export default function Calendar() {
-    const [calendar, setCalendar] = useState<DayPilot.Calendar>();
-    const [startDate, setStartDate] = useState(DayPilot.Date.today().firstDayOfWeek());
-    const { userRole } = useContext(UserContext);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,days.dayName,professor.fullname,course.courseDesc&join=course_days&on=course.courseID=course_days.courseID&join=days&on=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=enrollment&on_inner=course.courseID=enrollment.courseID&inner_join=student&on_inner=enrollment.studentID=student.studentID&left_join=users&on_left=student.userID=users.userID&condition=users.userType='student'&and=users.userID=1&group_by=course.courseID&order_by=course.startTime`);
+      const data = await response.json();
+      setEvents(data.results.map(({ courseID, courseName, startTime, endTime, dayName }: { courseID: number, courseName: string, startTime: string, endTime: string, dayName: string}) => ({
+        id: courseID,
+        text: courseName,
+        start: `${dayName}T${startTime}`,
+        startTime: startTime, 
+        endTime: endTime,    
+        backColor: "#f0f0f0", // Assuming a default color for all events
+      })));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
-    const colors = [
-        { name: "Green", id: "#6aa84f" },
-        { name: "Blue", id: "#3d85c6" },
-        { name: "Turquoise", id: "#00aba9" },
-        { name: "Light Blue", id: "#56c5ff" },
-        { name: "Yellow", id: "#f1c232" },
-        { name: "Orange", id: "#e69138" },
-        { name: "Red", id: "#cc4125" },
-        { name: "Light Red", id: "#ff0000" },
-        { name: "Purple", id: "#af8ee5" },
-    ];
+  useEffect(() => {
+    fetchData();
+  }, [startDate]);
 
-    const students = [
-        { name: "1", id: 1 },
-        { name: "2", id: 2 },
-        { name: "3", id: 3 },
-        { name: "4", id: 4 },
-        { name: "5", id: 5 },
-        { name: "6", id: 6 },
-        { name: "7", id: 7 },
-        { name: "8", id: 8 },
-        { name: "9", id: 9 },
-        { name: "10", id: 10 },
-    ];
+  useEffect(() => {
+    if (calendar) {
+      calendar.update({ startDate, events });
+    }
+  }, [calendar, startDate, events]);
 
-    const handlePreviousWeek = () => {
-        setStartDate(startDate.addDays(-7));
-    };
+  const handlePreviousWeek = () => {
+    setStartDate(startDate.addDays(-7));
+  };
 
-    const handleNextWeek = () => {
-        setStartDate(startDate.addDays(7));
-    };
+  const handleNextWeek = () => {
+    setStartDate(startDate.addDays(7));
+  };
 
-    const editEvent = async (e: DayPilot.Event) => {
-        if (userRole !== "professor") return;
-        const form = [
-            { name: "Class", id: "text", type: "text" },
-            { name: "Event color", id: "backColor", type: "select", options: colors },
-            { name: "Number of Students", id: "tags.students", type: "select", options: students },
-        ];
+  const initialConfig: DayPilot.CalendarConfig = {
+    viewType: "Week",
+    durationBarVisible: false,
+    businessBeginsHour: 7,
+    businessEndsHour: 20,
+    startDate: DayPilot.Date.today().firstDayOfWeek(),
+    eventMoveHandling: "Disabled",
+    eventResizeHandling: "Disabled",
+    days: 7,
+  };
 
-        const modal = await DayPilot.Modal.form(form, e.data);
-        if (modal.canceled) return;
-        e.data.text = modal.result.text;
-        e.data.backColor = modal.result.backColor;
-        e.data.tags.participants = modal.result.tags.participants;
-        calendar?.events.update(e);
-    };
+  return (
+    <div>
+      <div className="flex justify-between items-center mt-20 max-w-screen-lg mx-auto">
+        <button onClick={handlePreviousWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
+          Prev Week
+        </button>
+        <h1 className="text-2xl my-5 text-black font-light">Student Schedule</h1>
+        <button onClick={handleNextWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
+          Next Week
+        </button>
+      </div>
+      <div className="relative justify-center items-center flex-col mx-auto mb-20 w-full max-w-screen-lg">
+        <DayPilotCalendar
+          {...initialConfig}
+          events={events}
+          onEventClick={(args) => {
+            // Optionally handle event click for student
+          }}
+          controlRef={setCalendar}
+        />
+      </div>
+    </div>
+  );
+};
 
-    const contextMenu = new DayPilot.Menu({
-        items: userRole === "professor"
-            ? [
-                    {
-                        text: "Delete",
-                        onClick: async (args) => {
-                            calendar?.events.remove(args.source);
-                        },
-                    },
-                    {
-                        text: "-",
-                    },
-                    {
-                        text: "Edit",
-                        onClick: async (args) => {
-                            await editEvent(args.source);
-                        },
-                    },
-                ]
-            : [
-                    {
-                        text: "View Details",
-                        onClick: async (args) => {
-                        },
-                    },
-                    {
-                        text: "Drop",
-                        onClick: async (args) => {
-                        },
-                    },
-                ],
-    });
-
-    const onBeforeEventRender = (args: DayPilot.CalendarBeforeEventRenderArgs) => {
-        args.data.areas = [
-            {
-                top: 5,
-                right: 5,
-                width: 20,
-                height: 20,
-                fontColor: "#fff",
-                backColor: "#00000033",
-                style: "border-radius: 25%; cursor: pointer;",
-                toolTip: "Show context menu",
-                action: "ContextMenu",
-            },
-        ];
-
-        const students = args.data.tags?.students || 0;
-        if (students > 0) {
-            args.data.areas.push({
-                bottom: 5,
-                left: 5,
-                width: 24,
-                height: 24,
-                action: "None",
-                backColor: "#00000033",
-                fontColor: "#b0b0b0",
-                text: students,
-                style: "border-radius: 50%; border: 2px solid #fff; font-size: 18px; text-align: center;",
-            });
-        }
-    };
-
-    const initialConfig: DayPilot.CalendarConfig = {
-        viewType: "Week",
-        durationBarVisible: false,
-        businessBeginsHour: 7,
-        businessEndsHour: 20,
-        startDate: DayPilot.Date.today().firstDayOfWeek(),
-    };
-
-    const [config, setConfig] = useState(initialConfig);
-
-    useEffect(() => {
-        if (!calendar || calendar?.disposed()) {
-            return;
-        }
-        const events: DayPilot.EventData[] = [
-            {
-                id: 1,
-                text: "Event 1",
-                start: startDate.addDays(2).addHours(10).toString(),
-                end: startDate.addDays(2).addHours(13).toString(),
-                tags: {
-                    students: 2,
-                },
-            },
-            {
-                id: 2,
-                text: "Event 2",
-                start: startDate.addDays(3).addHours(9).toString(),
-                end: startDate.addDays(3).addHours(11).toString(),
-                backColor: "#6aa84f",
-                tags: {
-                    students: 1,
-                },
-            },
-            {
-                id: 3,
-                text: "Event 3",
-                start: startDate.addDays(3).addHours(12).toString(),
-                end: startDate.addDays(3).addHours(15).toString(),
-                backColor: "#f1c232",
-                tags: {
-                    students: 3,
-                },
-            },
-            {
-                id: 4,
-                text: "Event 4",
-                start: startDate.addDays(1).addHours(11).toString(),
-                end: startDate.addDays(1).addHours(14).toString(),
-                backColor: "#cc4125",
-                tags: {
-                    students: 2,
-                },
-            },
-        ];
-
-        calendar.update({ startDate, events });
-    }, [calendar, startDate]);
-
-    const onTimeRangeSelected = async (args: DayPilot.CalendarTimeRangeSelectedArgs) => {
-        if (userRole !== "professor") return;
-        const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
-        calendar?.clearSelection();
-        if (modal.canceled) return;
-        calendar?.events.add({
-            start: args.start,
-            end: args.end,
-            id: DayPilot.guid(),
-            text: modal.result,
-            tags: {
-                students: 1,
-            },
-        });
-    };
-
-    return (
-        <UserContext.Provider value={{ userRole: "professor" }}> {}
-            <div>
-                <div className="flex justify-between items-center mt-20 max-w-screen-lg mx-auto">
-                    <button onClick={handlePreviousWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
-                        Prev Week
-                    </button>
-                    <h1 className="text-2xl my-5 text-black font-light">Schedule Builder</h1>
-                    <button onClick={handleNextWeek} className="px-4 py-2 bg-blue-500 text-white rounded">
-                        Next Week
-                    </button>
-                </div>
-                <div className="relative justify-center items-center flex-col mx-auto mb-20 w-full max-w-screen-lg">
-                    <DayPilotCalendar
-                        {...config}
-                        onTimeRangeSelected={onTimeRangeSelected}
-                        onEventClick={async (args) => {
-                            if (userRole === "professor") await editEvent(args.e);
-                        }}
-                        contextMenu={contextMenu}
-                        onBeforeEventRender={onBeforeEventRender}
-                        controlRef={setCalendar}
-                    />
-                </div>
-            </div>
-        </UserContext.Provider>
-    );
-}
+export default StudentCalendar;
