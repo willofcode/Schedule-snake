@@ -23,7 +23,7 @@ export default async function handler(
     order_by,
   } = req.query;
 
-  const validTables = ["student", "professor", "users", "course"];
+  const validTables = ["student", "professor", "users", "course", "days", "course_days", "enrollment"];
 
   if (!table) {
     return res.status(400).json({ message: "This query requires a table" });
