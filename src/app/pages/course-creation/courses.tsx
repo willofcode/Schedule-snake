@@ -1,15 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
+import { Newsreader } from 'next/font/google';
 
+const newsreader = Newsreader({ subsets: ["latin"] });
 
-const CourseCreation = ({course, create}: any) => {
+interface Course {
+  courseID: number;
+  courseName: string;
+  courseDesc: string;
+  courseDays: string;
+  startTime: string;
+  endTime: string;
+}
+
+const CourseCreation = () => {
       const [courseName, setCourseName] = useState('');
       const [courseID, setCourseID] = useState('');
       const [courseDescription, setCourseDescription] = useState('');
       const [courseStartTime, setCourseStartTime] = useState('');
       const [courseEndTime, setCourseEndTime] = useState('');
       const [courseDays, setCourseDays] = useState<string[]>([]);
-      const [courses, setCourses] = useState<any[]>([]);
+      const [courses, setCourses] = useState<Course[]>([]);
       const [isEditing, setIsEditing] = useState(false);
 
     
@@ -34,7 +45,7 @@ const CourseCreation = ({course, create}: any) => {
         };
 
           try {
-            const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`;
+            const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
             const courseUpdate = await fetch(updateCourse, {
               method: 'PUT',
               headers: {
@@ -52,7 +63,7 @@ const CourseCreation = ({course, create}: any) => {
           setIsEditing(false);
           
         try{
-          const createCourse = `/api/insertinto?table=course&category=courseID&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${courseData.courseID}&value=${localStorage.getItem('userID')}&value=${courseData.courseName}&value=${courseData.courseDescription}&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`  
+          const createCourse = `/api/insertinto?table=course&category=courseID&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${courseData.courseID}&value=${localStorage.getItem('userID')}&value=${courseData.courseName}&value=${courseData.courseDescription}&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;  // Insert the course into the course table 
           const courseCreate = await fetch(createCourse, {
             method: 'POST',
             headers: {
@@ -72,17 +83,26 @@ const CourseCreation = ({course, create}: any) => {
     
       const handleFetchCourses = async () => {
         try {
-          const profCourse = `/api/select?table=course&columns=*&condition=profID=${localStorage.getItem('userID')}`;
+          const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${localStorage.getItem('userID')}&group_by=course.courseID&order_by=course.startTime`; // Fetch the courses for the professor from the course table // localStorage.getItem('userID') attempts to fetches the ID for the current user
           const courseFetch = await fetch(profCourse, {
             method: 'GET',
           });
           if (!courseFetch.ok) {
             throw new Error('Could not retrieve courses');
           }
-          setCourses(await courseFetch.json());
+          const data = await courseFetch.json();
+          const course : Course[] = data.results.map((course: any) => ({
+            courseID: course.courseID,
+            courseName: course.courseName,
+            courseDesc: course.courseDesc,
+            startTime: course.startTime,
+            endTime: course.endTime,
+          }));
+          setCourses(course);
         } catch (error) {
           console.error('Error fetching courses:', error);
         }
+        handleFetchCourses();
       };
     
       const handleModify = (course: any) => {
@@ -199,8 +219,8 @@ const CourseCreation = ({course, create}: any) => {
             <h2 className="text-xl font-bold mb-4">Existing Courses</h2>
             <ul>
               {courses.map(course => (
-                <li key={course.courseID as string} className="mb-2">
-                  <span className="font-bold">{course.courseName as string}</span> ({course.courseID as string})
+                <li key={course.courseID as number} className="mb-2">
+                  <span className="font-bold">{course.courseName as string}</span> ({course.courseID as number})
                   <button
                     onClick={() => handleModify(course)}
                     className="ml-4 bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
