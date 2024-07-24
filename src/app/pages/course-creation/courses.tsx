@@ -44,26 +44,26 @@ const CourseCreation = () => {
           courseDays,
         };
 
-          try {
-            const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
-            const courseUpdate = await fetch(updateCourse, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(courseData),
-            });
-            if (!courseUpdate.ok) {
-              throw new Error('Could not update course');
-            }
-            console.log('Course updated successfully:', await courseUpdate.json());
-          } catch (error) {
-            console.error('Error updating course:', error);
+        try {
+          const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
+          const courseUpdate = await fetch(updateCourse, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(courseData),
+          });
+          if (!courseUpdate.ok) {
+            throw new Error('Could not update course');
           }
-          setIsEditing(false);
-          
+          console.log('Course updated successfully:', await courseUpdate.json());
+        } catch (error) {
+          console.error('Error updating course:', error);
+        }
+        setIsEditing(false);
+        
         try{
-          const createCourse = `/api/insertinto?table=course&category=courseID&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${courseData.courseID}&value=${localStorage.getItem('userID')}&value=${courseData.courseName}&value=${courseData.courseDescription}&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;  // Insert the course into the course table 
+          const createCourse = `/api/insertinto?table=course&category=courseID&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${courseData.courseID}&value=${user}&value=${courseData.courseName}&value=${courseData.courseDescription}&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;  // Insert the course into the course table 
           const courseCreate = await fetch(createCourse, {
             method: 'POST',
             headers: {
@@ -80,10 +80,11 @@ const CourseCreation = () => {
         }
     };
 
+    const user = localStorage.getItem("userID"); // Get the user ID from local storage
     
       const handleFetchCourses = async () => {
         try {
-          const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${localStorage.getItem('userID')}&group_by=course.courseID&order_by=course.startTime`; // Fetch the courses for the professor from the course table // localStorage.getItem('userID') attempts to fetches the ID for the current user
+          const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${user}&group_by=course.courseID&order_by=course.startTime`; // Fetch the courses for the professor from the course table // localStorage.getItem('userID') attempts to fetches the ID for the current user
           const courseFetch = await fetch(profCourse, {
             method: 'GET',
           });
@@ -223,7 +224,7 @@ const CourseCreation = () => {
                   <span className="font-bold">{course.courseName as string}</span> ({course.courseID as number})
                   <button
                     onClick={() => handleModify(course)}
-                    className="ml-4 bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+                    className="ml-4 bg-blue-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
                   >
                     Modify
                   </button>
