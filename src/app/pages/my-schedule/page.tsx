@@ -1,12 +1,16 @@
-import React from 'react';
+'use client';
 
-const Schedule = () => {
-    return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold">My Schedule</h1>
-            <p>My Schedule</p>
-        </div>
-    );
-};
+import react from "react";
+import { Newsreader } from "next/font/google";
+import Calendar from "./calendar";
+import { useState, useEffect } from "react"
 
-export default Schedule;
+const newsreader = Newsreader({ subsets: ["latin"] });;  
+
+export default function mySchedule() {
+  return (
+      <div>
+        <Calendar/>
+      </div>
+  )
+}
