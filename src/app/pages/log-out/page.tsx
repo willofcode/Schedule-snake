@@ -6,7 +6,6 @@ export default function Logout() {
   const router = useRouter();
 
   useEffect(() => {
-    // Clear user data from localStorage
     localStorage.removeItem("email");
     localStorage.removeItem("password");
     localStorage.removeItem("userType");
@@ -14,7 +13,6 @@ export default function Logout() {
     localStorage.removeItem("studentID");
     localStorage.removeItem("cart");
 
-    // Redirect to login page
     router.push("/sign-in");
   }, [router]);
 

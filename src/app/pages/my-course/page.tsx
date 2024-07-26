@@ -3,6 +3,7 @@ import React from "react";
 import { Newsreader } from "next/font/google";
 import CourseItem from "./courses";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const newsreader = Newsreader({ subsets: ["latin"] });
 
@@ -16,6 +17,7 @@ interface Course {
 }
 const myCourse = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const getCourses = async () => {
@@ -55,27 +57,6 @@ const myCourse = () => {
     localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
   };
 
-  const addCourse = (id: number, title: string, desc: string, days: string, startTime: string, endTime: string) => {
-    const newCourse = {
-      id: id,
-      title: title,
-      desc: desc,
-      days: days,
-      startTime: startTime,
-      endTime: endTime,
-    };
-    const updatedCourses = [...courses, newCourse];
-    setCourses(updatedCourses);
-    localStorage.setItem("cart", JSON.stringify(updatedCourses));
-  }
-  
-  const id = 0; 
-  const title = ""; 
-  const desc = ""; 
-  const days = ""; 
-  const startTime = ""; 
-  const endTime = ""; 
-
   const handleDeleteCourse = (id: number) => {
     const updatedCourses = courses.filter((course) => course.id !== id);
     setCourses(updatedCourses);
@@ -101,7 +82,7 @@ const myCourse = () => {
               </div>
             ))}
           </div>
-          <button onClick={() => addCourse(id, title, desc, days, startTime, endTime)}>Add Course</button>
+          <button onClick={() => router.push("/pages/course-creation")}>Add Course</button>
         </div>
       </div>
     </>
