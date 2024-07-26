@@ -61,7 +61,7 @@ const CourseCreation = () => {
         } catch (error) {
           console.error('Error updating course:', error);
         }
-        setIsEditing(false);
+        setIsEditing(true);
         
         try{
           var user = localStorage.getItem("userID"); // Get the user ID from local storage
@@ -80,6 +80,7 @@ const CourseCreation = () => {
         } catch (error) {
           console.error('Error creating course:', error);
         }
+        setIsEditing(false);
     };
     
       const handleFetchCourses = async () => {

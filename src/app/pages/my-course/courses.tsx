@@ -1,5 +1,4 @@
 import React from "react";
-import { IoIosAddCircle } from "react-icons/io";
 import { FaTrashAlt } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
 
@@ -51,12 +50,6 @@ const CourseItem = ({ course, onAdd, onEdit, onDelete }: any) => {
           className="ml-4 p-2 bg-blue-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
         >
             <BiEdit />
-        </button>
-        <button
-          onClick={handleAdd}
-          className="ml-4 p-2 bg-green-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-        >
-          <IoIosAddCircle />
         </button>
       </div>
     </div>

@@ -42,7 +42,7 @@ export default function SignIn() {
         localStorage.setItem("email", formData.email);
         localStorage.setItem("password", formData.password);
         localStorage.setItem("userType", "student");
-        localStorage.setItem("userID ", userID);
+        localStorage.setItem("userID", userID);
         const studentID = studentResult.results[0].studentID;
         localStorage.setItem("studentID", studentID);
         console.log("Login Successful", studentResult.results[0].password);

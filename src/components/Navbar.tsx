@@ -20,6 +20,8 @@ const Navbar = () => {
   const handleLogOut = () => {
     localStorage.removeItem("email");
     localStorage.removeItem("password");
+    localStorage.removeItem('userID');
+    localStorage.removeItem("userType");
     setNavText("Sign In");
     setNavLink("/pages/sign-in");
     router.push("/");

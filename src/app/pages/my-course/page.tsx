@@ -4,6 +4,7 @@ import { Newsreader } from "next/font/google";
 import CourseItem from "./courses";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { IoIosAddCircle } from "react-icons/io";
 
 const newsreader = Newsreader({ subsets: ["latin"] });
 
@@ -55,13 +56,14 @@ const myCourse = () => {
     const selectedCourse = courses.find((course) => course.id === id);
     console.log("selectedCourse", selectedCourse);
     localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
+    router.push("/pages/course-creation");
   };
 
   const handleDeleteCourse = (id: number) => {
     const updatedCourses = courses.filter((course) => course.id !== id);
     setCourses(updatedCourses);
     localStorage.setItem("cart", JSON.stringify(updatedCourses));
-    }
+  };
 
   return (
     <>
@@ -82,7 +84,15 @@ const myCourse = () => {
               </div>
             ))}
           </div>
-          <button onClick={() => router.push("/pages/course-creation")}>Add Course</button>
+          <div className="flex m-5">
+            <button
+              onClick={() => router.push("/pages/course-creation")}
+              className="p-2 bg-green-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              <IoIosAddCircle />
+            </button>
+            <p className="text-lg text-black ml-2">Add New Course</p>
+          </div>
         </div>
       </div>
     </>

@@ -66,7 +66,7 @@ const CourseSearch = () => {
   };
   return (
     <>
-      <div className="fixed w-full scrollable-container pt-20 bg-white min-h-screen">
+      <div className=" w-full scrollable-container pt-20 bg-white min-h-screen">
         <div className="px-6 max-w-screen-xl mx-auto">
           <div className="flex justify-between items-center">
             <h1
