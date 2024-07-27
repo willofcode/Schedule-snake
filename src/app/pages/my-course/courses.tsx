@@ -2,12 +2,9 @@ import React from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
 
-const CourseItem = ({ course, onAdd, onEdit, onDelete }: any) => {
+const CourseItem = ({ course, onEdit, onDelete }: any) => {
   const { id, title, description, daysOfWeek, startTime, endTime } = course;
 
-  const handleAdd = () => {
-    onAdd(id);
-  };
 
   const handleEdit = () => {
     onEdit(id, title, description, daysOfWeek, startTime, endTime);

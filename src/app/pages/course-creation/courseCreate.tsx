@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Newsreader } from 'next/font/google';
 
-const newsreader = Newsreader({ subsets: ["latin"] });
+const newsreader = Newsreader({ subsets: ['latin'] });
 
 interface Course {
   courseID: number;
@@ -21,8 +21,25 @@ const CourseCreation = () => {
       const [courseEndTime, setCourseEndTime] = useState('');
       const [courseDays, setCourseDays] = useState<string[]>([]);
       const [courses, setCourses] = useState<Course[]>([]);
-      const [isEditing, setIsEditing] = useState(false);
+      const [isEditing, setIsEditing] = useState(Boolean);
 
+      useEffect(() => {
+        const modification = localStorage.getItem("modify");
+        const selectedCourse = localStorage.getItem("selectedCourse");
+    
+        if (modification === "edit" && selectedCourse) {
+          const course = JSON.parse(selectedCourse);
+          setCourseName(course.courseName);
+          setCourseID(course.courseID);
+          setCourseDescription(course.courseDesc);
+          setCourseStartTime(course.startTime);
+          setCourseEndTime(course.endTime);
+          setCourseDays(course.days);
+          setIsEditing(true);
+        } else {
+          setIsEditing(false);
+        }
+      }, []);
     
       const handleCheckboxChange = (day: string) => {
         if (courseDays.includes(day)) {
@@ -31,57 +48,65 @@ const CourseCreation = () => {
           setCourseDays([...courseDays, day]);
         }
       };
+
+      const formatTime = (time: string) => {
+        const [hours, minutes] = time.split(':');
+        const formattedTime = hours + minutes;
+        return formattedTime;
+      };
     
       const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-    
+      
         const courseData = {
           courseName,
           courseID,
           courseDescription,
-          courseStartTime,
-          courseEndTime,
+          courseStartTime: formatTime(courseStartTime),
+          courseEndTime: formatTime(courseEndTime),
           courseDays,
         };
-
+      
         try {
           var user = localStorage.getItem("userID"); // Get the user ID from local storage
-          const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
-          const courseUpdate = await fetch(updateCourse, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(courseData),
-          });
-          if (!courseUpdate.ok) {
-            throw new Error('Could not update course');
-          }
-          console.log('Course updated successfully:', await courseUpdate.json());
-        } catch (error) {
-          console.error('Error updating course:', error);
-        }
-        setIsEditing(true);
-        
-        try{
-          var user = localStorage.getItem("userID"); // Get the user ID from local storage
-          const createCourse = `/api/insertinto?table=course&category=courseID&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${courseData.courseID}&value=${user}&value=${courseData.courseName}&value=${courseData.courseDescription}&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;  // Insert the course into the course table 
-          const courseCreate = await fetch(createCourse, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(courseData),
-          });
-            if (!courseCreate.ok) {
-                throw new Error('Could not create course');
-            }
-          console.log('Course created successfully:', await courseCreate.json());
-        } catch (error) {
-          console.error('Error creating course:', error);
-        }
-        setIsEditing(false);
-    };
+          var modification = localStorage.getItem("modify"); // Get the course modification from local storage 
+
+          console.log("modification type: ", modification);
+
+          if (modification === "edit") {
+              setIsEditing(true);
+              const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
+              const courseUpdate = await fetch(updateCourse, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(courseData),
+              });
+              if (!courseUpdate.ok) {
+                throw new Error('Could not update course');
+              }
+              console.log('Course updated successfully:', await courseUpdate.json());
+              } else {
+                  setIsEditing(false);
+                  const createCourse = `/api/insertinto?table=course&category=courseID&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${courseData.courseID}&value=${user}&value=${courseData.courseName}&value=${courseData.courseDescription}&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;  // Insert the course into the course table 
+                  const courseCreate = await fetch(createCourse, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(courseData),
+                  });
+                  if (!courseCreate.ok) {
+                    throw new Error('Could not create course');
+                  }
+                  console.log('Course created successfully:', await courseCreate.json());
+                } 
+              }
+              catch (error) {
+                console.error('Error creating course:', error);
+              }
+            };
     
       const handleFetchCourses = async () => {
         try {
@@ -105,7 +130,6 @@ const CourseCreation = () => {
         } catch (error) {
           console.error('Error fetching courses:', error);
         }
-        handleFetchCourses();
       };
     
       const handleModify = (course: any) => {
@@ -124,7 +148,7 @@ const CourseCreation = () => {
     
       return (
         <div className="relative justify-center items-center flex-col mx-auto my-20 w-1/2 max-w-screen-md">
-          <h2 className="text-2xl font-bold mb-4">{isEditing ? 'Modify Course' : 'Create a New Course'}</h2>
+          <h2 className="text-2xl font-bold mb-4">{ isEditing ? 'Modify Course' : 'Create a New Course'}</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="courseName">

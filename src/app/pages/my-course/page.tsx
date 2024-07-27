@@ -31,7 +31,7 @@ const myCourse = () => {
         console.log("user", user);
         console.log("userType", userType);
 
-        const getCall = `/api/select?table=course&columns=course.courseID,course.courseName,times.startTime,times.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=times&on_inner=course.timeBlockID=timeBlockID&inner_join=professor&on_inner=course.profID=professor.profID&left_join=users&on_left=professor.userID=users.userID&condition=users.userType=${'userType'} AND users.userID=${user}&group_by=course.courseID&order_by=times.startTime`;
+        const getCall = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&left_join=users&on_left=professor.userID=users.userID&condition=users.userType=${'userType'} AND users.userID=${user}&group_by=course.courseID&order_by=course.startTime`;
 
         const response = await fetch(getCall, {
           method: "GET",
@@ -61,6 +61,7 @@ const myCourse = () => {
     const selectedCourse = courses.find((course) => course.id === id);
     console.log("selectedCourse", selectedCourse);
     localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
+    localStorage.setItem("modify", "edit");
     router.push("/pages/course-creation");
   };
 
@@ -121,20 +122,32 @@ const myCourse = () => {
               </div>
             ))}
           </div>
+          <div className="flex m-5">
+            <button
+              onClick={() => {
+                router.push("/pages/course-creation");
+                localStorage.setItem("modify", "add");
+              }}
+              className="p-2 bg-green-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              <IoIosAddCircle />
+            </button>
+            <p className="text-lg text-black ml-2">Add New Course</p>
+          </div>
           {showDeletePanel && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-4 rounded-md">
-                <p>Are you sure you want to delete this course?</p>
-                <div className="flex justify-end mt-4">
+                <p>Are you sure you want to delete this course? (WARNING: Deleting a course will remove all course details and enrollments)</p>
+                <div className="flex justify-center mt-4">
                   <button
                     onClick={confirmDeleteCourse}
-                    className="px-4 py-2 mr-2 bg-red-500 text-white rounded-md"
+                    className="justify-center px-4 py-2 mr-2 bg-gray-500 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     Yes
                   </button>
                   <button
                     onClick={cancelDeleteCourse}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                    className="justify-center px-4 py-2 mr-2 bg-gray-500 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     No
                   </button>
