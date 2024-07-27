@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IoIosAddCircle } from "react-icons/io";
 
 const CourseItem = ({ course, onAdd }: any) => {
   const { id, title, description, daysOfWeek, startTime, endTime } = course;
+  const [userTypeExists, setUserTypeExists] = useState(false);
+
+  useEffect(() => {
+    const userType = localStorage.getItem("userType");
+    setUserTypeExists(!!userType);
+  }, []);
 
   const handleAdd = () => {
     onAdd(id);
@@ -30,12 +36,14 @@ const CourseItem = ({ course, onAdd }: any) => {
             {formatTime(startTime)} to {formatTime(endTime)}
           </p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="ml-4 p-2 bg-green-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-        >
-          <IoIosAddCircle />
-        </button>
+        {userTypeExists && (
+          <button
+            onClick={handleAdd}
+            className="ml-4 p-2 bg-green-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            <IoIosAddCircle />
+          </button>
+        )}
       </div>
     </div>
   );

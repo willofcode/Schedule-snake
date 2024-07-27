@@ -2,19 +2,23 @@
 import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import NavbarProf from "./NavbarProf";
+import NavbarDef from "./NavbarDef";
 
 const MainNavbar = () => {
-  const [isProf, setIsProf] = useState(false);
+  const [userType, setUserType] = useState<string | null>(null);
 
   useEffect(() => {
-    const userType = localStorage.getItem("userType");
-    if (userType === "professor") {
-      console.log(userType);
-      setIsProf(true);
-    }
+    const storedUserType = localStorage.getItem("userType");
+    setUserType(storedUserType);
   }, []);
 
-  return isProf ? <NavbarProf /> : <Navbar />;
+  if (userType === null) {
+    return <NavbarDef />;
+  } else if (userType === "professor") {
+    return <NavbarProf />;
+  } else {
+    return <Navbar />;
+  }
 };
 
 export default MainNavbar;
