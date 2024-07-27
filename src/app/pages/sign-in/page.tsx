@@ -53,7 +53,7 @@ export default function SignIn() {
         return;
       }
 
-      const professorApiCall = `/api/select?table=professor&columns=userID,email,password&condition=email='${formData.email}'`;
+      const professorApiCall = `/api/select?table=professor&columns=profID,userID,email,password&condition=email='${formData.email}'`;
       const professorResponse = await fetch(professorApiCall, {
         method: "GET",
       });
@@ -66,6 +66,7 @@ export default function SignIn() {
 
       if (professorResult.results.length > 0) {
         const userID = professorResult.results[0].userID;
+        const profID = professorResult.results[0].profID;
         if (professorResult.results[0].password !== formData.password) {
           throw new Error("Password is incorrect. Please try again.");
         }
@@ -73,6 +74,7 @@ export default function SignIn() {
         localStorage.setItem("password", formData.password);
         localStorage.setItem("userType", "professor");
         localStorage.setItem("userID", userID);
+        localStorage.setItem("profID", profID);
         console.log("Login Successful", professorResult.results[0].password);
         router.push("/");
         setTimeout(() => {
