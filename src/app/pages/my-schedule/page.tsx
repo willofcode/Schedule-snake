@@ -1,16 +1,30 @@
 'use client';
 
-import react from "react";
-import { Newsreader } from "next/font/google";
+import React, { useState } from "react";
 import Calendar from "./calendar";
-import { useState, useEffect } from "react"
+import NavigationButtons from "./navigationbutton";
+import { DayPilot } from "@daypilot/daypilot-lite-react";
+import { NextPage } from "next";
 
-const newsreader = Newsreader({ subsets: ["latin"] });;  
+const MySchedule: NextPage= () => {
+  const [startDate, setStartDate] = useState(DayPilot.Date.today().firstDayOfWeek());
 
-export default function mySchedule() {
+  const handlePreviousWeek = () => {
+    setStartDate(startDate.addDays(-7));
+  };
+
+  const handleNextWeek = () => {
+    setStartDate(startDate.addDays(7));
+  };
+
   return (
-      <div>
-        <Calendar/>
+    <div>
+      <NavigationButtons handlePreviousWeek={handlePreviousWeek} handleNextWeek={handleNextWeek} />
+      <div className="relative justify-center items-center flex-col mx-auto mb-20 w-full max-w-screen-lg">
+        <Calendar startDate={startDate} />
       </div>
-  )
-}
+    </div>
+  );
+};
+
+export default MySchedule;

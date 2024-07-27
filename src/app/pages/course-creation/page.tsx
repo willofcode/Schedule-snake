@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import CourseCreation from './courses';
+import CourseCreation from './courseCreate';
 import { useState, useEffect } from 'react';
 
 const courseCreate = () => {
