@@ -114,8 +114,8 @@ const CourseCreation = () => {
 
   const handleFetchCourses = async () => {
     try {
-      var profID = localStorage.getItem("profID"); // Get the user ID from local storage
-      const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${profID}&group_by=course.courseID&order_by=course.startTime`;
+      var user = localStorage.getItem("profID"); // Get the user ID from local storage
+      const profCourse = `/api/select?table=course&columns=courseID,courseName,courseDesc,startTime,endTime&condition=profID=${user}`;
       const courseFetch = await fetch(profCourse, {
         method: "GET",
       });
@@ -233,8 +233,6 @@ const CourseCreation = () => {
               "Wednesday",
               "Thursday",
               "Friday",
-              "Saturday",
-              "Sunday",
             ].map((day) => (
               <label key={day} className="mr-4">
                 <input
