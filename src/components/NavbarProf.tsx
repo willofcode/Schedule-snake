@@ -22,10 +22,8 @@ const Navbar = () => {
     localStorage.removeItem("password");
     localStorage.removeItem("userID");
     localStorage.removeItem("userType");
-    localStorage.removeItem("profID");
     setNavText("Sign In");
     setNavLink("/pages/sign-in");
-    router.push("/components/NavBarDef");
     router.push("/");
   };
 
