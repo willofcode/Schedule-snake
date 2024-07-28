@@ -9,7 +9,7 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed!" });
   }
   // accepted parameters:
-  const { table } = req.query;
+  const { table, ignore } = req.query;
   const categories = Array.isArray(req.query.category)
     ? req.query.category
     : [req.query.category];
@@ -32,8 +32,9 @@ export default async function handler(
     const results = await new Promise((resolve, reject) => {
       const listCategories = categories.join(", ");
       const listValues = values.join(", ");
+      const ignoreCond = ignore === 'true' ? 'IGNORE' : '';
       db.query(
-        `INSERT INTO ${table} (${listCategories}) VALUES (${listValues});`,
+        `INSERT ${ignoreCond} INTO ${table} (${listCategories}) VALUES (${listValues});`,
         (err: any, results: any) => {
           if (err) {
             reject(err);

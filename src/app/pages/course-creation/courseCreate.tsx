@@ -49,21 +49,22 @@ const CourseCreation = () => {
     }
   };
 
-  const formatTime = (time: string) => {
+  const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(":");
-    const formattedTime = hours + minutes;
+    const formattedTime = hours.padStart(2, '0') + minutes.padStart(2, '0');
     return formattedTime;
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
+    const formattedStartTime = formatTime(courseStartTime);
+    const formattedEndTime = formatTime(courseEndTime);
     const courseData = {
       courseName,
       courseID,
       courseDescription,
-      courseStartTime: formatTime(courseStartTime),
-      courseEndTime: formatTime(courseEndTime),
+      courseStartTime: formattedStartTime,
+      courseEndTime: formattedEndTime,
       courseDays,
     };
 
@@ -75,7 +76,33 @@ const CourseCreation = () => {
 
       if (modification === "edit") {
         setIsEditing(true);
-        const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
+        console.log(formattedStartTime, formattedEndTime);
+        const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${formattedStartTime}&value=${formattedEndTime}`;
+        const deleteCourseDays = `/api/delete?table=course_days&condition=courseID=${courseID}`
+        const delResponse = await fetch(deleteCourseDays, {
+          method: "DELETE"
+        });
+        if (!delResponse.ok) { console.error(`Error deleting the course days (course days reset)`); return null;}
+        const dayIDs: number[] = [];
+        const length = courseDays.length;
+        for (let i= 0; i < length; i++) {
+          const currDay = courseDays[i];
+          const getDays = `/api/select?table=days&columns=dayID&condition=dayName='${currDay}';`
+          const response = await fetch(getDays);
+          if (!response.ok) { console.error(`Failed fetching dayID`); return null;}
+          const data = await response.json();
+          dayIDs.push(data.results[0].dayID);
+        }
+        for (let i = 0; i<dayIDs.length; i++) {
+          const currID = dayIDs[i];
+          const insertIDs = `/api/insertInto?table=course_days&ignore=true&category=courseID&category=dayID&value=${courseID}&value=${currID}`;
+          const response = await fetch(insertIDs, {
+            method: "POST"
+          });
+          if (!response.ok) { console.error(`Failed INSERTING dayIDs`); return null;}
+          const data = await response.json();
+          console.log(data)
+        }
         const courseUpdate = await fetch(updateCourse, {
           method: "PATCH",
           headers: {
@@ -114,7 +141,7 @@ const CourseCreation = () => {
 
   const handleFetchCourses = async () => {
     try {
-      var profID = localStorage.getItem("profID"); // Get the user ID from local storage
+      var profID = localStorage.getItem("profID");
       const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${profID}&group_by=course.courseID&order_by=course.startTime`;
       const courseFetch = await fetch(profCourse, {
         method: "GET",
