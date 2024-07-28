@@ -52,7 +52,7 @@ const CourseSearch = () => {
     if (selectedCourse) {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const isCourseInCart = cart.some(
-        (course: { id: number }) => course.id === id,
+        (course: { id: number }) => course.id === id
       );
 
       if (isCourseInCart) {

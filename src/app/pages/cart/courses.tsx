@@ -2,7 +2,7 @@ import React from "react";
 import { FaTrashAlt } from "react-icons/fa";
 
 const CourseItem = ({ course, onDelete }: any) => {
-  const { id, title, description, daysOfWeek, startTime, endTime } = course;
+  const { id, title, desc, days, startTime, endTime } = course;
 
   const handleDelete = () => {
     onDelete(id);
@@ -21,11 +21,11 @@ const CourseItem = ({ course, onDelete }: any) => {
     <div className="p-4 border-b border-gray-200 flex justify-between mt-10">
       <div className="w-1/2 pr-4">
         <h2 className="text-xl text-[#2D9DB6] font-semibold">{title}</h2>
-        <p className="text-gray-700">{description}</p>
+        <p className="text-gray-700">{desc}</p>
       </div>
       <div className="flex items-center">
         <div className="flex flex-col items-end">
-          <p className="text-gray-900 font-bold">{daysOfWeek}</p>
+          <p className="text-gray-900 font-bold">{days}</p>
           <p className="text-gray-900 font-bold">
             {formatTime(startTime)} to {formatTime(endTime)}
           </p>
