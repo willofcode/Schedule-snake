@@ -93,7 +93,7 @@ const myCourse = () => {
   const confirmDeleteCourse = async () => {
     if (selectedCourseId) {
       try {
-        const apiUrl = `/api/deleteFrom?table=course&column=courseID&value=${selectedCourseId}`;
+        const apiUrl = `/api/delete?table=course&column=courseID&value=${selectedCourseId}`;
         const response = await fetch(apiUrl, {
           method: "DELETE",
         });
