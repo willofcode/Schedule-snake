@@ -18,20 +18,20 @@ interface Course {
 }
 const myCourse = () => {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [showDeletePanel, setShowDeletePanel] = useState(false); // State variable to control the visibility of the delete panel
-  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null); // State variable to store the selected course ID
+  const [showDeletePanel, setShowDeletePanel] = useState(false); 
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
     const getCourses = async () => {
       try {
-        var user = localStorage.getItem("profID");
+        var profID = localStorage.getItem("profID");
         var userType = localStorage.getItem("userType");
 
-        console.log("user", user);
+        console.log("user", profID);
         console.log("userType", userType);
 
-        const getCall = `/api/select?table=course&columns=courseID,courseName,courseDesc,startTime,endTime&condition=profID=${user}`;
+        const getCall = `/api/select?table=course&columns=courseID,courseName,courseDesc,startTime,endTime&condition=profID=${profID}`;
 
         const response = await fetch(getCall, {
           method: "GET",
@@ -73,7 +73,8 @@ const myCourse = () => {
   const confirmDeleteCourse = async () => {
     if (selectedCourseId) {
       try {
-        const apiUrl = `/api/deleteFrom?table=course&column=courseID&value=${selectedCourseId}`;
+        const apiUrl = `/api/delete?table=course&condition=courseID=${selectedCourseId}`;
+        // Delete the course from the database
         const response = await fetch(apiUrl, {
           method: "DELETE",
         });
