@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Newsreader } from 'next/font/google';
-
 const newsreader = Newsreader({ subsets: ['latin'] });
 
 interface Course {
@@ -63,11 +62,12 @@ const CourseCreation = () => {
   };
 
   const handleCheckboxChange = (day: string) => {
-    if (courseDays.includes(daytoindex(day))) {
+    const dayIndex = daytoindex(day);
+    if (courseDays.includes(dayIndex)) {
       (setCourseDays(courseDays.filter((selectedDay) => selectedDay !== daytoindex(day))))
     } else {
       if (courseDays.length < 2) {
-        setCourseDays([...courseDays, daytoindex(day)]);
+        setCourseDays([...courseDays, dayIndex]);
       } else {
         alert('You can only select up to 2 days');
       }
@@ -173,7 +173,7 @@ const CourseCreation = () => {
         courseDesc: course.courseDesc,
         startTime: course.startTime,
         endTime: course.endTime,
-        courseDays: course.dayNames.split(','),
+        courseDays: course.dayNames.split(',').map((day: string) => daytoindex(day)),
       }));
       setCourses(course);
       console.log('Courses fetched successfully:', course);
@@ -202,7 +202,6 @@ const CourseCreation = () => {
 
     const selectedCourse = courses.find(course => course.courseName === selectedCourseName);
     if (selectedCourse) {
-      setCourseID(selectedCourse.courseID.toString());
       setCourseDescription(selectedCourse.courseDesc);
     }
   };
@@ -236,32 +235,6 @@ const CourseCreation = () => {
               id="courseName"
               value={courseName}
               onChange={(e) => setCourseName(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          )}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="courseID">
-            Course ID
-          </label>
-          {isEditing ? (
-            <input
-              type="text"
-              id="courseID"
-              value={courseID}
-              onChange={(e) => setCourseID(courseID)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-              readOnly
-            />
-          ) : (
-            // jay said for new course courseID auto increment
-            <input
-              type="text"
-              id="courseID"
-              value={courseID}
-              onChange={(e) => setCourseID(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
@@ -315,19 +288,17 @@ const CourseCreation = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Course Days
-          </label>
+        <label className="block text-gray-700 text-sm font-bold mb-2">Days of the Week</label>
           <div className="flex flex-wrap">
-            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-              <label key={daytoindex(day)} className="mr-4">
+            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+              <label key={day} className="inline-flex items-center mr-4 mb-2">
                 <input
                   type="checkbox"
-                  value={day}
                   checked={courseDays.includes(daytoindex(day))}
                   onChange={() => handleCheckboxChange(day)}
+                  className="form-checkbox"
                 />
-                {day}
+                <span className="ml-2">{day}</span>
               </label>
             ))}
           </div>
@@ -341,6 +312,23 @@ const CourseCreation = () => {
           </button>
         </div>
       </form>
+      <div className="mt-10">
+        <h2 className="text-xl font-bold mb-4">Existing Courses</h2>
+        <ul>
+          {courses.map((course) => (
+            <li key={course.courseID as number} className="mb-2">
+              <span className="font-bold">{course.courseName as string}</span> (
+              {course.courseID as number})
+              <button
+                onClick={() => handleModify(course)}
+                className="ml-4 bg-blue-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+              >
+                Modify
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
