@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import db from '@/../config/db';
 
-type QueryResult = { insertId: number }; // Define the type for your query results
+type QueryResult = { insertId: number };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
