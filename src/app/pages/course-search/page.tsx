@@ -66,8 +66,8 @@ const CourseSearch = () => {
   };
   return (
     <>
-      <div className="scrollable-container pt-20 bg-white min-h-screen">
-        <div className="p-20 bg-white min-h-screen ">
+      <div className=" w-full scrollable-container pt-20 bg-white min-h-screen">
+        <div className="px-6 max-w-screen-xl mx-auto">
           <div className="flex justify-between items-center">
             <h1
               className={`${newsreader.className} text-6xl text-black text-left `}
@@ -76,7 +76,7 @@ const CourseSearch = () => {
             </h1>
           </div>
           <hr className="border-1 border-black flex-grow " />
-          <div className="bg-white rounded-md mt-8">
+          <div className="bg-white scrollable-containe rounded-md mt-8">
             {courses.map((course) => (
               <div key={course.id} className="border-b border-gray-200">
                 <CourseItem course={course} onAdd={handleAddToCart} />
@@ -90,9 +90,4 @@ const CourseSearch = () => {
 };
 
 export default CourseSearch;
-// SELECT course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime, GROUP_CONCAT(days.dayName) AS dayNames
-// FROM course
-// JOIN course_days ON course.courseID = course_days.courseID
-// JOIN days ON course_days.dayID = days.dayID
-// WHERE course.courseID =
-// GROUP BY course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime;
+

@@ -34,7 +34,7 @@ export default function SignUp() {
       if (formData.signUpCode !== "A8b2C5dX7F") {
         throw new Error("Error, wrong sign up code.");
       }
-      const userTableCall = `/api/insertInto?table=users&category=userType&&category=email&category=password&value='professor'&value='${formData.email}'&value='${formData.password}'`;
+      const userTableCall = `/api/insertInto?table=users&category=userType&category=email&category=password&value='professor'&value='${formData.email}'&value='${formData.password}'`;
       const userTableResponse = await fetch(userTableCall, {
         method: "POST",
       });

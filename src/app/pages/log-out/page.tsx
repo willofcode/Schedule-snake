@@ -12,6 +12,8 @@ export default function Logout() {
     localStorage.removeItem("userID");
     localStorage.removeItem("studentID");
     localStorage.removeItem("cart");
+    localStorage.removeItem("studentID");
+    localStorage.removeItem("profID");
 
     router.push("/sign-in");
   }, [router]);
@@ -26,3 +28,4 @@ export default function Logout() {
     </main>
   );
 }
+
