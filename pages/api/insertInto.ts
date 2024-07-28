@@ -1,33 +1,67 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import db from '@/../config/db';
-import { QueryError, ResultSetHeader } from 'mysql2';
+import db from "@/../config/db";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed, must be a POST request' });
+export default async function handler(
+    req: NextApiRequest,
+    res: NextApiResponse,
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed!" });
   }
+  // accepted parameters:
+  const { table, ignore } = req.query;
+  const categories = Array.isArray(req.query.category)
+      ? req.query.category
+      : [req.query.category];
+  const values = Array.isArray(req.query.value)
+      ? req.query.value
+      : [req.query.value];
 
-  const { table, values } = req.body; // accepted parameters
-  if (!table || !values) {
-    return res.status(400).json({ message: 'This query requires a table and values' });
+  if (categories.length != values.length) {
+    return res.status(400).json({
+      message: "Inequality in categories & values, check syntax:",
+      categories,
+      values,
+    });
+  }
+  if (!table) {
+    return res.status(400).json({ message: "This query requires a table" });
   }
 
   try {
-    const result: ResultSetHeader = await new Promise((resolve, reject) => {
-      const query = `INSERT INTO ${table} SET ?`;
-      db.query(query, values, (err: QueryError, results: ResultSetHeader) => {
+    const results = await new Promise((resolve, reject) => {
+      const listCategories = categories.join(", ");
+      const listValues = values.join(", ");
+      const ignoreCond = ignore === 'true' ? 'IGNORE' : '';
+      db.query(
+          `INSERT ${ignoreCond} INTO ${table} (${listCategories}) VALUES (${listValues});`,
+          (err: any, results: any) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(results);
+            }
+          },
+      );
+    });
+    const insertId = await new Promise((resolve, reject) => {
+      db.query('SELECT LAST_INSERT_ID() AS insertId', (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve(results);
+          resolve(results[0].insertId);
         }
       });
     });
-
-    console.log("INSERT statement successful", result);
-    res.status(200).json({ message: 'INSERT statement successful', insertId: result.insertId });
-  } catch (error: any) {
-    console.error(`Error inserting into ${table}:`, error);
-    res.status(500).json({ message: `Could not insert into ${table}`, error: error.message });
+    console.log("INSERT INTO statement request successful", results);
+    res
+        .status(200)
+        .json({ message: "INSERT INTO request successful", results, courseID: insertId });
+  } catch (error) {
+    console.error(`Error inserting into ${table} table:`, error);
+    res.status(500).json({
+      message: `Could not insert into ${table}`,
+      error: error.message,
+    });
   }
 }
