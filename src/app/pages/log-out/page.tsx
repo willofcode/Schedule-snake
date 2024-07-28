@@ -6,14 +6,17 @@ export default function Logout() {
   const router = useRouter();
 
   useEffect(() => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
-    localStorage.removeItem("userType");
-    localStorage.removeItem("userID");
-    localStorage.removeItem("studentID");
-    localStorage.removeItem("cart");
-    localStorage.removeItem("studentID");
-    localStorage.removeItem("profID");
+    const removeItems = () => {
+      localStorage.removeItem("studentID");
+      localStorage.removeItem("profID");
+      localStorage.removeItem("email");
+      localStorage.removeItem("password");
+      localStorage.removeItem("userType");
+      localStorage.removeItem("userID");
+      localStorage.removeItem("cart");
+    };
+
+    removeItems();
 
     router.push("/sign-in");
   }, [router]);

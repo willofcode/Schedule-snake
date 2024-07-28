@@ -1,0 +1,19 @@
+name: Schedule snake
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build & Push Image
+        run: |
+          echo "${{ secrets.DOCKERPW }}" | docker login -u "jaynopponep" --password-stdin
+          docker image built -t jaynopponep/schedulesnakev1 .
+          docker push jaynopponep/schedulesnakev1
