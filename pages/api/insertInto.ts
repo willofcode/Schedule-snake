@@ -9,7 +9,7 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed!" });
   }
   // accepted parameters:
-  const { table } = req.query;
+  const { table, ignore } = req.query;
   const categories = Array.isArray(req.query.category)
     ? req.query.category
     : [req.query.category];
@@ -32,8 +32,9 @@ export default async function handler(
     const results = await new Promise((resolve, reject) => {
       const listCategories = categories.join(", ");
       const listValues = values.join(", ");
+      const ignoreCond = ignore === 'true' ? 'IGNORE' : '';
       db.query(
-        `INSERT INTO ${table} (${listCategories}) VALUES (${listValues});`,
+        `INSERT ${ignoreCond} INTO ${table} (${listCategories}) VALUES (${listValues});`,
         (err: any, results: any) => {
           if (err) {
             reject(err);
@@ -43,10 +44,19 @@ export default async function handler(
         },
       );
     });
+    const insertId = await new Promise((resolve, reject) => {
+      db.query('SELECT LAST_INSERT_ID() AS insertId', (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results[0].insertId);
+        }
+      });
+    });
     console.log("INSERT INTO statement request successful", results);
     res
       .status(200)
-      .json({ message: "INSERT INTO request successful", results });
+        .json({ message: "INSERT INTO request successful", results, courseID: insertId });
   } catch (error) {
     console.error(`Error inserting into ${table} table:`, error);
     res.status(500).json({

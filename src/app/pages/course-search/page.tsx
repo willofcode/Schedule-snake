@@ -90,9 +90,4 @@ const CourseSearch = () => {
 };
 
 export default CourseSearch;
-// SELECT course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime, GROUP_CONCAT(days.dayName) AS dayNames
-// FROM course
-// JOIN course_days ON course.courseID = course_days.courseID
-// JOIN days ON course_days.dayID = days.dayID
-// WHERE course.courseID =
-// GROUP BY course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime;
+
