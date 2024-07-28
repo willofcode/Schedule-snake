@@ -69,8 +69,8 @@ const CourseCreation = () => {
     };
 
     try {
-      var profID = localStorage.getItem("profID"); // Get the user ID from local storage
-      var modification = localStorage.getItem("modify"); // Get the course modification from local storage
+      var profID = localStorage.getItem("profID");
+      var modification = localStorage.getItem("modify");
 
       console.log("modification type: ", modification);
 
@@ -113,7 +113,7 @@ const CourseCreation = () => {
         if (!courseUpdate.ok) {
           throw new Error("Could not update course");
         }
-        console.log("Course updated successfully:", await courseUpdate.json());
+        console.log("Course updated successfu lly:", await courseUpdate.json());
       } else { // ELSE STATEMENT HERE
         setIsEditing(false);
         console.log(courseData.courseDays);
