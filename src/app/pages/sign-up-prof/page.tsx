@@ -54,12 +54,14 @@ export default function SignUp() {
       if (!response.ok) {
         throw new Error("Error occurred in the network response");
       }
+      const newProf = await response.json();
+      const profID = newProf.courseID;
+      console.log(profID); // ^ I know this is not intuitive, gotta change the API structure later
       localStorage.setItem("email", formData.email);
       localStorage.setItem("password", formData.password);
       localStorage.setItem("userType", "professor");
       localStorage.setItem("userID", userID);
-      const result = await response.json();
-      console.log("Form submitted", result);
+      localStorage.setItem("profID", profID);
       router.push("/");
       setTimeout(() => {
         window.location.reload();
