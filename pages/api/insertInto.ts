@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import db from '@/../config/db';
-
-type QueryResult = { insertId: number };
+import { QueryError, ResultSetHeader } from 'mysql2';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,9 +13,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result: QueryResult = await new Promise((resolve, reject) => {
+    const result: ResultSetHeader = await new Promise((resolve, reject) => {
       const query = `INSERT INTO ${table} SET ?`;
-      db.query(query, values, (err: any, results: QueryResult) => {
+      db.query(query, values, (err: QueryError, results: ResultSetHeader) => {
         if (err) {
           reject(err);
         } else {
