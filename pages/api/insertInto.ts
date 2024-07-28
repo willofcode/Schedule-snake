@@ -44,10 +44,19 @@ export default async function handler(
         },
       );
     });
+    const insertId = await new Promise((resolve, reject) => {
+      db.query('SELECT LAST_INSERT_ID() AS insertId', (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results[0].insertId);
+        }
+      });
+    });
     console.log("INSERT INTO statement request successful", results);
     res
       .status(200)
-      .json({ message: "INSERT INTO request successful", results });
+        .json({ message: "INSERT INTO request successful", results, courseID: insertId });
   } catch (error) {
     console.error(`Error inserting into ${table} table:`, error);
     res.status(500).json({

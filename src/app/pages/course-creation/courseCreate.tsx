@@ -114,12 +114,20 @@ const CourseCreation = () => {
           throw new Error("Could not update course");
         }
         console.log("Course updated successfully:", await courseUpdate.json());
-      } else {
+      } else { // ELSE STATEMENT HERE
         setIsEditing(false);
-        console.log(courseData.courseName);
-        console.log(courseData.courseDescription);
-        console.log(courseData.courseStartTime);
-        console.log(courseData.courseEndTime);
+        console.log(courseData.courseDays);
+        const dayIDs: number[] = [];
+        const length = courseDays.length;
+        for (let i= 0; i < length; i++) {
+          const currDay = courseDays[i];
+          const getDays = `/api/select?table=days&columns=dayID&condition=dayName='${currDay}';`
+          const response = await fetch(getDays);
+          if (!response.ok) { console.error(`Failed fetching dayID`); return null;}
+          const data = await response.json();
+          dayIDs.push(data.results[0].dayID);
+        }
+        // ^ RETRIEVE DAY IDS
         const createCourse = `/api/insertInto?table=course&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${profID}&value='${courseData.courseName}'&value='${courseData.courseDescription}'&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;
         const courseCreate = await fetch(createCourse, {
           method: "POST",
@@ -131,7 +139,20 @@ const CourseCreation = () => {
         if (!courseCreate.ok) {
           throw new Error("Could not create course");
         }
-        console.log("Course created successfully:", await courseCreate.json());
+        const createResponse = await courseCreate.json();
+        const newCourseID = createResponse.courseID;
+        console.log(newCourseID);
+        // ^ CREATING A COURSE
+        for (let i = 0; i<dayIDs.length; i++) {
+          const currID = dayIDs[i];
+          const insertIDs = `/api/insertInto?table=course_days&ignore=true&category=courseID&category=dayID&value=${newCourseID}&value=${currID}`;
+          const response = await fetch(insertIDs, {
+            method: "POST"
+          });
+          if (!response.ok) { console.error(`Failed INSERTING dayIDs`); return null;}
+          const data = await response.json();
+          console.log(data)
+        }
         router.push("/pages/my-course");
       }
     } catch (error) {
