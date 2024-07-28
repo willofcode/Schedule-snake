@@ -6,6 +6,7 @@ import NavigationButtons from "./navigationbutton";
 import { DayPilot } from "@daypilot/daypilot-lite-react";
 import { NextPage } from "next";
 
+
 const MySchedule: NextPage= () => {
   const [startDate, setStartDate] = useState(DayPilot.Date.today().firstDayOfWeek());
 

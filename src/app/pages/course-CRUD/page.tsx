@@ -1,12 +1,12 @@
 "use client";
 import React from 'react';
-import CourseCreation from './courseCreate';
+import CourseModification from './coursemod';
 import { useState, useEffect } from 'react';
 
 const courseCreate = () => {
   return (
     <div>
-      <CourseCreation />
+      <CourseModification />
     </div>
   );
 };
