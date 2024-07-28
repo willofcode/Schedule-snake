@@ -15,17 +15,24 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userID"); // Replace this with actual logic to retrieve the user ID
+    const userId = localStorage.getItem("userID"); // Retrieve the user ID from local storage
+
+    if (!userId) {
+      setError("User ID not found in local storage");
+      setLoading(false);
+      return;
+    }
+
+    console.log("Fetched userId from local storage:", userId); // Debug log
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(
-          `/api/select?table=users&userId=${userId}`,
-        );
+        const response = await fetch(`/api/select?table=users&userId=${userId}`);
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
         const data = await response.json();
+        console.log("Fetched user data:", data); // Debug log
         setUser(data);
       } catch (error) {
         setError(error.message);
@@ -50,21 +57,22 @@ export default function Settings() {
   }
 
   return (
-    <main>
-      <div>
-        <h1>Settings</h1>
+    <main style={{ padding: "20px", marginTop: "60px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* <h1>Settings</h1> */}
         <p>First Name: {user.firstName}</p>
         <p>Last Name: {user.lastName}</p>
+        
         <p>Student ID: {user.studentID}</p>
         <h2>Enrolled Courses:</h2>
         {user.courses && user.courses.length > 0 ? (
-          <ul>
+          <ul style={{ listStyleType: "none", padding: 0 }}>
             {user.courses.map((course, index) => (
-              <li key={index}>{course}</li>
+              <li key={index} style={{ marginBottom: "10px" }}>{course}</li>
             ))}
           </ul>
         ) : (
-          <p>No courses enrolled</p>
+          <p>No courses enrolled currently</p>
         )}
       </div>
     </main>
