@@ -52,7 +52,7 @@ const CourseSearch = () => {
     if (selectedCourse) {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const isCourseInCart = cart.some(
-        (course: { id: number }) => course.id === id,
+        (course: { id: number }) => course.id === id
       );
 
       if (isCourseInCart) {
@@ -76,7 +76,7 @@ const CourseSearch = () => {
             </h1>
           </div>
           <hr className="border-1 border-black flex-grow " />
-          <div className="bg-white scrollable-containe rounded-md mt-8">
+          <div className="bg-white rounded-md mt-8">
             {courses.map((course) => (
               <div key={course.id} className="border-b border-gray-200">
                 <CourseItem course={course} onAdd={handleAddToCart} />

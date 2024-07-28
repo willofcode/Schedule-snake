@@ -7,7 +7,7 @@ interface Course {
   courseID: number;
   courseName: string;
   courseDesc: string;
-  courseDays: string;
+  courseDays: string[];
   startTime: string;
   endTime: string;
 }
@@ -34,7 +34,7 @@ const CourseModification = () => {
       setCourseDescription(course.courseDesc);
       setCourseStartTime(course.startTime);
       setCourseEndTime(course.endTime);
-      setCourseDays(course.days|| []); // Ensure it's always an array
+      setCourseDays(Array.isArray(course.courseDays) ? course.courseDays : []); // Ensure it's always an array
       setIsEditing(true);
     } else {
       setIsEditing(false);
@@ -98,7 +98,7 @@ const CourseModification = () => {
       courseDescription,
       courseStartTime: formatTime(courseStartTime),
       courseEndTime: formatTime(courseEndTime),
-      courseDays: courseDays.map(day => daytoindex(day)),
+      courseDays: courseDays.map(day => parseInt(day)),
     };
 
     try {
@@ -107,7 +107,7 @@ const CourseModification = () => {
 
       if (modification === 'edit') {
         setIsEditing(true);
-        const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
+        const updateCourse = `/api/update?table=course&column=courseName&value=${courseName}&column=courseDesc&value=${courseDescription}&column=startTime&value=${formatTime(courseStartTime)}&column=endTime&value=${formatTime(courseEndTime)}&condition=courseID='${courseID}'`; // Update the course in the course table
         const courseUpdate = await fetch(updateCourse, {
           method: 'PATCH',
           headers: {
@@ -115,7 +115,11 @@ const CourseModification = () => {
           },
           body: JSON.stringify(courseData),
         });
-        const updatedays = `/api/update?table=course_days&condition=courseID=${courseID}&column=dayID&value=${courseDays}`; // Update the days in the course_days table
+        const prevDay1 = courseData.courseDays[0];
+        const prevDay2 = courseData.courseDays[1];
+        const day1 = courseDays[0];
+        const day2 = courseDays[1];
+        const updatedays = `/api/update?table=course_days&column=dayID&value=${day1}&column=dayID&value=${day2}&condition=courseID='${courseID}' AND dayID='${prevDay1}' AND dayID='${prevDay2}'`; // Update the days in the course_days table
         const daysUpdate = await fetch(updatedays, {
           method: 'PATCH',
           headers: {
@@ -134,11 +138,11 @@ const CourseModification = () => {
         //router.push("/pages/my-course");
       } else {
         setIsEditing(false);
-        console.log(courseData.courseName);
-        console.log(courseData.courseDescription);
-        console.log(courseData.courseStartTime);
-        console.log(courseData.courseEndTime);
-        console.log(courseData.courseDays);
+        // console.log(courseData.courseName);
+        // console.log(courseData.courseDescription);
+        // console.log(courseData.courseStartTime);
+        // console.log(courseData.courseEndTime);
+        // console.log(courseData.courseDays);
         const createCourse = `/api/insertInto?table=course&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${profID}&value='${courseData.courseName}'&value='${courseData.courseDescription}'&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;
         const courseCreate = await fetch(createCourse, {
           method: 'POST',
@@ -158,7 +162,6 @@ const CourseModification = () => {
         console.log('Course ID retrieved:', courseID);
         console.log('Day ID insert:', courseDays1);
         console.log('Day ID insert:', courseDays2);
-
         const insertDay1 = `/api/insertInto?table=course_days&category=courseID&category=dayID&value=${courseID}&value=${courseDays1}`;
         const daysCreate1 = await fetch(insertDay1, {
           method: 'POST',
@@ -189,14 +192,14 @@ const CourseModification = () => {
       }
     } catch (error) {
       console.error('Error creating course:', error);
-      //router.push("/pages/my-course");
+      router.push("/pages/my-course");
     }
   };
 
   const handleFetchCourses = async () => {
     try {
       var profID = localStorage.getItem("profID"); // Get the user ID from local storage
-      const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${profID}&group_by=course.courseID&order_by=course.startTime`;
+      const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames, GROUP_CONCAT(days.dayID) AS dayID&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${profID}&group_by=course.courseID&order_by=course.startTime`;
       const courseFetch = await fetch(profCourse, {
         method: 'GET',
       });
@@ -210,7 +213,8 @@ const CourseModification = () => {
         courseDesc: course.courseDesc,
         startTime: course.startTime,
         endTime: course.endTime,
-        courseDays: course.dayNames.split(','),
+        courseDays: course.dayNames.split(',').map((day: string) => daytoindex(day)), // Convert day names to day IDs 
+        dayID: course.dayID,
       }));
       setCourses(course);
       console.log('Courses fetched successfully:', course);
@@ -225,6 +229,7 @@ const CourseModification = () => {
     setCourseDescription(course.courseDesc);
     setCourseStartTime(course.courseStartTime);
     setCourseEndTime(course.courseEndTime);
+    setCourseDays(course.courseDays);
     setIsEditing(true);
   };
 

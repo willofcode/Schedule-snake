@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useState, useEffect }  from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
 
 const CourseItem = ({ course, onEdit, onDelete }: any) => {
-  const { id, title, description, daysOfWeek, startTime, endTime } = course;
+  const { id, title, desc, days, startTime, endTime } = course;
+  const [userTypeExists, setUserTypeExists] = useState(false);
 
+  useEffect(() => {
+    const userType = localStorage.getItem("userType");
+    setUserTypeExists(!!userType);
+    if (userType === "student") {
+      alert("You are not authorized to edit or delete courses");
+      setUserTypeExists(false);
+    }
+  }, []);
 
   const handleEdit = () => {
-    onEdit(id, title, description, daysOfWeek, startTime, endTime);
+    onEdit(id, title, desc, days, startTime, endTime);
   };
 
   const handleDelete = () => {
@@ -27,30 +36,34 @@ const CourseItem = ({ course, onEdit, onDelete }: any) => {
     <div className="p-4 border-b border-gray-200 flex justify-between mt-10">
       <div className="w-1/2 pr-4">
         <h2 className="text-xl text-[#2D9DB6] font-semibold">{title}</h2>
-        <p className="text-gray-700">{description}</p>
+        <p className="text-gray-700">{desc}</p>
       </div>
       <div className="flex items-center">
         <div className="flex flex-col items-end">
-          <p className="text-gray-900 font-bold">{daysOfWeek}</p>
+          <p className="text-gray-900 font-bold">{days}</p>
           <p className="text-gray-900 font-bold">
             {formatTime(startTime)} to {formatTime(endTime)}
-          </p>
+            </p>
+          </div>
+          {userTypeExists && (
+            <>
+              <button
+                onClick={handleDelete}
+                className="ml-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                <FaTrashAlt />
+              </button>
+              <button
+                onClick={handleEdit}
+                className="ml-4 p-2 bg-blue-500 text-white rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+              >
+                <BiEdit />
+              </button>
+            </>
+          )}
         </div>
-        <button
-            onClick={handleDelete}
-            className="ml-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-        > 
-            <FaTrashAlt />
-        </button>
-        <button
-          onClick={handleEdit}
-          className="ml-4 p-2 bg-blue-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-        >
-            <BiEdit />
-        </button>
       </div>
-    </div>
-  );
+    );
 };
 
 export default CourseItem;

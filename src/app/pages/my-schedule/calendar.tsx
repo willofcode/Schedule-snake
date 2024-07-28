@@ -14,8 +14,12 @@ const colors = [
   { name: "Purple", id: "#af8ee5" },
 ];
 
-interface EventDataWithContextMenu extends DayPilot.EventData {
-  ContextMenu: DayPilot.Menu;
+interface ExtendedEventData extends DayPilot.EventData {
+  contextMenu?: DayPilot.Menu;
+  courseDesc?: string;
+  tags?: {
+    students?: number;
+  };
 }
 
 interface CalendarProps {
@@ -26,8 +30,11 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
   const [calendar, setCalendar] = useState<DayPilot.Calendar>();
 
   const onBeforeEventRender = (args: DayPilot.CalendarBeforeEventRenderArgs) => {
-    args.data.areas = [
+    const eventData = args.data as ExtendedEventData;
+
+    eventData.areas = [
       {
+        top: 5,
         right: 5,
         bottom: 5,
         width: 20,
@@ -35,14 +42,15 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
         fontColor: "#fff",
         backColor: "#00000033",
         style: "border-radius: 25%; cursor: pointer;",
+        toolTip: "Details",
         action: "ContextMenu",
         visibility: "Hover",
       },
     ];
 
-    const students = args.data.tags?.students || 0;
+    const students = eventData.tags?.students || 0;
     if (students > 0) {
-      args.data.areas.push({
+      eventData.areas.push({
         bottom: 5,
         left: 5,
         width: 24,
@@ -50,23 +58,22 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
         action: "None",
         backColor: "#00000033",
         fontColor: "#b0b0b0",
-        text: students,
+        text: students.toString(),
         style: "border-radius: 50%; border: 2px solid #fff; font-size: 18px; text-align: center;",
       });
     }
 
-    const ContextMenu = new DayPilot.Menu({
+    eventData.contextMenu = new DayPilot.Menu({
       items: [
         {
           text: 'Details',
           onClick: (args) => {
-            const e = args.source; DayPilot.Modal.prompt("Description: " + e.data.courseDesc);
+            const e = args.source as ExtendedEventData;
+            DayPilot.Modal.alert(`Description: ${e.courseDesc}`);
           },
         },
       ],
     });
-
-    (args.data as EventDataWithContextMenu).ContextMenu = ContextMenu;
   };
 
   const initialConfig: DayPilot.CalendarConfig = {
@@ -77,7 +84,7 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
     startDate: DayPilot.Date.today().firstDayOfWeek(),
     eventMoveHandling: "Disabled",
     eventResizeHandling: "Disabled",
-    eventClickHandling: "Enabled",
+    eventClickHandling: "ContextMenu",
   };
 
   const [config, setConfig] = useState(initialConfig);
@@ -136,6 +143,7 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
           throw new Error("Could not retrieve Courses");
         }
 
+       
         const data = await response.json();
         if (data.results && Array.isArray(data.results)) {
           const fetchEvents = data.results.flatMap((event: any) => {
@@ -154,7 +162,7 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
                 tags: { 
                   students: 0, 
                 }
-              };
+              } as ExtendedEventData;
             });
           });
           calendar.update({ startDate, events: fetchEvents });
@@ -167,6 +175,7 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
     };
     fetchData();
   }, [calendar, startDate]);
+
 
   return (
     <DayPilotCalendar
