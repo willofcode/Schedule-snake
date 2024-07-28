@@ -7,7 +7,7 @@ interface Course {
   courseID: number;
   courseName: string;
   courseDesc: string;
-  courseDays: string;
+  courseDays: string[]; // needed to be an array of strings!
   startTime: string;
   endTime: string;
 }
@@ -34,7 +34,7 @@ const CourseCreation = () => {
       setCourseDescription(course.courseDesc);
       setCourseStartTime(course.startTime);
       setCourseEndTime(course.endTime);
-      setCourseDays(course.days);
+      setCourseDays(course.days || []); // Ensure course.days is an array
       setIsEditing(true);
     } else {
       setIsEditing(false);
@@ -77,7 +77,7 @@ const CourseCreation = () => {
         setIsEditing(true);
         const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
         const courseUpdate = await fetch(updateCourse, {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
@@ -129,6 +129,7 @@ const CourseCreation = () => {
         courseDesc: course.courseDesc,
         startTime: course.startTime,
         endTime: course.endTime,
+        courseDays: course.dayNames.split(',')
       }));
       setCourses(course);
     } catch (error) {
@@ -140,8 +141,8 @@ const CourseCreation = () => {
     setCourseName(course.courseName);
     setCourseID(course.courseID);
     setCourseDescription(course.courseDescription);
-    setCourseStartTime(course.courseStartTime);
-    setCourseEndTime(course.courseEndTime);
+    setCourseStartTime(course.startTime);
+    setCourseEndTime(course.endTime);
     setCourseDays(course.courseDays);
     setIsEditing(true);
   };
@@ -151,131 +152,131 @@ const CourseCreation = () => {
   }, []);
 
   return (
-    <div className="relative justify-center items-center flex-col mx-auto my-20 w-1/2 max-w-screen-md">
-      <h2 className="text-2xl font-bold mb-4">
-        {isEditing ? "Modify Course" : "Create a New Course"}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="courseName"
-          >
-            Course Name
-          </label>
-          <input
-            type="text"
-            id="courseName"
-            value={courseName}
-            onChange={(e) => setCourseName(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="courseDescription"
-          >
-            Course Description
-          </label>
-          <textarea
-            id="courseDescription"
-            value={courseDescription}
-            onChange={(e) => setCourseDescription(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="courseStartTime"
-          >
-            Course Start Time
-          </label>
-          <input
-            type="time"
-            id="courseStartTime"
-            value={courseStartTime}
-            onChange={(e) => setCourseStartTime(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline step=1"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="courseEndTime"
-          >
-            Course End Time
-          </label>
-          <input
-            type="time"
-            id="courseEndTime"
-            value={courseEndTime}
-            onChange={(e) => setCourseEndTime(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline step=1"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="courseDays"
-          >
-            Course Days
-          </label>
-          <div className="flex flex-wrap">
-            {[
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-              "Sunday",
-            ].map((day) => (
-              <label key={day} className="mr-4">
-                <input
-                  type="checkbox"
-                  value={day}
-                  checked={courseDays.includes(day)}
-                  onChange={() => handleCheckboxChange(day)}
-                  className="mr-2 leading-tight"
-                />
-                {day}
-              </label>
-            ))}
+      <div className="relative justify-center items-center flex-col mx-auto my-20 w-1/2 max-w-screen-md">
+        <h2 className="text-2xl font-bold mb-4">
+          {isEditing ? "Modify Course" : "Create a New Course"}
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseName"
+            >
+              Course Name
+            </label>
+            <input
+                type="text"
+                id="courseName"
+                value={courseName}
+                onChange={(e) => setCourseName(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+            />
           </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseDescription"
+            >
+              Course Description
+            </label>
+            <textarea
+                id="courseDescription"
+                value={courseDescription}
+                onChange={(e) => setCourseDescription(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseStartTime"
+            >
+              Course Start Time
+            </label>
+            <input
+                type="time"
+                id="courseStartTime"
+                value={courseStartTime}
+                onChange={(e) => setCourseStartTime(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline step=1"
+                required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseEndTime"
+            >
+              Course End Time
+            </label>
+            <input
+                type="time"
+                id="courseEndTime"
+                value={courseEndTime}
+                onChange={(e) => setCourseEndTime(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline step=1"
+                required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseDays"
+            >
+              Course Days
+            </label>
+            <div className="flex flex-wrap">
+              {[
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ].map((day) => (
+                  <label key={day} className="mr-4">
+                    <input
+                        type="checkbox"
+                        value={day}
+                        checked={courseDays.includes(day)}
+                        onChange={() => handleCheckboxChange(day)}
+                        className="mr-2 leading-tight"
+                    />
+                    {day}
+                  </label>
+              ))}
+            </div>
+          </div>
+          <div className="mb-4">
+            <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              {isEditing ? "Update Course" : "Create Course"}
+            </button>
+          </div>
+        </form>
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-4">Existing Courses</h2>
+          <ul>
+            {courses.map((course) => (
+                <li key={course.courseID} className="mb-2">
+                  <span className="font-bold">{course.courseName}</span> (
+                  {course.courseID})
+                  <button
+                      onClick={() => handleModify(course)}
+                      className="ml-4 bg-blue-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    Modify
+                  </button>
+                </li>
+            ))}
+          </ul>
         </div>
-        <div className="mb-4">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            {isEditing ? "Update Course" : "Create Course"}
-          </button>
-        </div>
-      </form>
-      <div className="mt-10">
-        <h2 className="text-xl font-bold mb-4">Existing Courses</h2>
-        <ul>
-          {courses.map((course) => (
-            <li key={course.courseID as number} className="mb-2">
-              <span className="font-bold">{course.courseName as string}</span> (
-              {course.courseID as number})
-              <button
-                onClick={() => handleModify(course)}
-                className="ml-4 bg-blue-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
-              >
-                Modify
-              </button>
-            </li>
-          ))}
-        </ul>
       </div>
-    </div>
   );
 };
 
