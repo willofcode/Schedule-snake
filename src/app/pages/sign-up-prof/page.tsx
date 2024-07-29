@@ -34,7 +34,7 @@ export default function SignUp() {
       if (formData.signUpCode !== "A8b2C5dX7F") {
         throw new Error("Error, wrong sign up code.");
       }
-      const userTableCall = `/api/insertInto?table=users&category=userType&&category=email&category=password&value='professor'&value='${formData.email}'&value='${formData.password}'`;
+      const userTableCall = `/api/insertInto?table=users&category=userType&category=email&category=password&value='professor'&value='${formData.email}'&value='${formData.password}'`;
       const userTableResponse = await fetch(userTableCall, {
         method: "POST",
       });
@@ -54,12 +54,14 @@ export default function SignUp() {
       if (!response.ok) {
         throw new Error("Error occurred in the network response");
       }
+      const newProf = await response.json();
+      const profID = newProf.courseID;
+      console.log(profID); // ^ I know this is not intuitive, gotta change the API structure later
       localStorage.setItem("email", formData.email);
       localStorage.setItem("password", formData.password);
       localStorage.setItem("userType", "professor");
       localStorage.setItem("userID", userID);
-      const result = await response.json();
-      console.log("Form submitted", result);
+      localStorage.setItem("profID", profID);
       router.push("/");
       setTimeout(() => {
         window.location.reload();
