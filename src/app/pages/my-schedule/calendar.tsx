@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DayPilot, DayPilotCalendar } from '@daypilot/daypilot-lite-react';
+import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
 import { NextPage } from "next";
 
 const colors = [
@@ -25,7 +25,9 @@ interface CalendarProps {
 const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
   const [calendar, setCalendar] = useState<DayPilot.Calendar>();
 
-  const onBeforeEventRender = (args: DayPilot.CalendarBeforeEventRenderArgs) => {
+  const onBeforeEventRender = (
+    args: DayPilot.CalendarBeforeEventRenderArgs
+  ) => {
     args.data.areas = [
       {
         right: 5,
@@ -51,16 +53,18 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
         backColor: "#00000033",
         fontColor: "#b0b0b0",
         text: students,
-        style: "border-radius: 50%; border: 2px solid #fff; font-size: 18px; text-align: center;",
+        style:
+          "border-radius: 50%; border: 2px solid #fff; font-size: 18px; text-align: center;",
       });
     }
 
     const ContextMenu = new DayPilot.Menu({
       items: [
         {
-          text: 'Details',
+          text: "Details",
           onClick: (args) => {
-            const e = args.source; DayPilot.Modal.prompt("Description: " + e.data.courseDesc);
+            const e = args.source;
+            DayPilot.Modal.prompt("Description: " + e.data.courseDesc);
           },
         },
       ],
@@ -90,7 +94,10 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
     const formatTime = (time: number) => {
       const hours = Math.floor(time / 100);
       const minutes = time % 100;
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+        2,
+        "0"
+      )}:00`;
     };
 
     const formatedTime = (time: number) => {
@@ -103,12 +110,20 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
     };
 
     const updateTime = (dateTimeStr: string, newTime: number) => {
-      const [datePart] = dateTimeStr.split('T');
-      const formattedTime = formatTime(newTime); 
-      return `${datePart}T${formattedTime}`
+      const [datePart] = dateTimeStr.split("T");
+      const formattedTime = formatTime(newTime);
+      return `${datePart}T${formattedTime}`;
     };
 
-    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
     const getDatebydayName = (startDate: DayPilot.Date, dayName: string) => {
       const dayIndex = daysOfWeek.indexOf(dayName);
@@ -124,13 +139,16 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
         console.log("user", user);
         console.log("userType", userType);
 
-        const studentSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,professor.fullname,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=enrollment&on_inner=course.courseID=enrollment.courseID&inner_join=student&on_inner=enrollment.studentID=student.studentID&inner_join=users&on_inner=student.userID=users.userID&condition=users.userType=${'userType'} AND users.userID=${user}&group_by=course.courseID&order_by=course.startTime`;
-        
-        const profSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=users&on_inner=professor.userID=users.userID&condition=users.userType=${'userType'} AND users.userID=${user}&group_by=course.courseID&order_by=course.startTime`;
+        const studentSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName)%20AS%20dayNames,professor.fullname,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=enrollment&on_inner=course.courseID=enrollment.courseID&inner_join=student&on_inner=enrollment.studentID=student.studentID&inner_join=users&on_inner=student.userID=users.userID&condition=users.userType=userType%20AND%20users.userID=12&group_by=course.courseID&order_by=course.startTime`;
 
-        const response = await fetch(userType === "student" ? studentSchedule : profSchedule, {
-          method: "GET",
-        });
+        const profSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,times.startTime,times.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=times&on_inner=course.timeBlockID=times.timeBlockID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=users&on_inner=professor.userID=users.userID&condition=users.userType=${"userType"} AND users.userID=${user}&group_by=course.courseID&order_by=times.startTime`;
+
+        const response = await fetch(
+          userType === "student" ? studentSchedule : profSchedule,
+          {
+            method: "GET",
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Could not retrieve Courses");
@@ -145,21 +163,29 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
               const eventEnd = getDatebydayName(startDate, dayName);
               return {
                 id: event.courseID,
-                text: event.courseName + "\n" + formatedTime(event.startTime) + " - " + formatedTime(event.endTime),
+                text:
+                  event.courseName +
+                  "\n" +
+                  formatedTime(event.startTime) +
+                  " - " +
+                  formatedTime(event.endTime),
                 start: updateTime(eventStart, event.startTime),
                 end: updateTime(eventEnd, event.endTime),
-                backColor: event.backcolor, 
-                courseDesc: event.courseDesc, 
+                backColor: event.backcolor,
+                courseDesc: event.courseDesc,
                 barColor: colors[Math.floor(Math.random() * colors.length)].id,
-                tags: { 
-                  students: 0, 
-                }
+                tags: {
+                  students: 0,
+                },
               };
             });
           });
           calendar.update({ startDate, events: fetchEvents });
         } else {
-          console.error("Expected an array of enrolled Courses but received:", data.results);
+          console.error(
+            "Expected an array of enrolled Courses but received:",
+            data.results
+          );
         }
       } catch (error) {
         console.error("Error fetching Courses:", error);
@@ -178,21 +204,21 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
 };
 
 export default Calendar;
-//       SELECT 
-//         course.courseID, 
-//         course.courseName, 
-//         course.startTime, 
-//         course.endTime, 
-//         days.dayName, 
-//         professor.fullname, 
-//         course.courseDesc 
-//       FROM course 
-//       INNER JOIN course_days ON course.courseID = course_days.courseID 
-//       INNER JOIN days ON course_days.dayID = days.dayID 
-//       INNER JOIN professor ON course.profID = professor.profID 
-//       INNER JOIN enrollment ON course.courseID = enrollment.courseID 
-//       INNER JOIN student ON enrollment.studentID = student.studentID 
-//       INNER JOIN users ON student.userID = users.userID 
-//       WHERE users.userType='student' AND users.userID=1 
-//       GROUP BY course.courseID 
+//       SELECT
+//         course.courseID,
+//         course.courseName,
+//         course.startTime,
+//         course.endTime,
+//         days.dayName,
+//         professor.fullname,
+//         course.courseDesc
+//       FROM course
+//       INNER JOIN course_days ON course.courseID = course_days.courseID
+//       INNER JOIN days ON course_days.dayID = days.dayID
+//       INNER JOIN professor ON course.profID = professor.profID
+//       INNER JOIN enrollment ON course.courseID = enrollment.courseID
+//       INNER JOIN student ON enrollment.studentID = student.studentID
+//       INNER JOIN users ON student.userID = users.userID
+//       WHERE users.userType='student' AND users.userID=1
+//       GROUP BY course.courseID
 //       ORDER BY course.startTime;
