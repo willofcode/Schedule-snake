@@ -32,9 +32,7 @@ const Cart = () => {
 
       const studentSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,professor.fullname,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=enrollment&on_inner=course.courseID=enrollment.courseID&inner_join=student&on_inner=enrollment.studentID=student.studentID&inner_join=users&on_inner=student.userID=users.userID&condition=users.userType='student' AND users.userID=${user}&group_by=course.courseID&order_by=course.startTime`;
 
-      const profSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=users&on_inner=professor.userID=users.userID&condition=users.userType='professor' AND users.userID=${user}&group_by=course.courseID&order_by=course.startTime`;
-
-      const queryURL = userType === "student" ? studentSchedule : profSchedule;
+      const queryURL = studentSchedule;
 
       const response = await fetch(queryURL, { method: "GET" });
 
@@ -45,8 +43,6 @@ const Cart = () => {
 
       const data = await response.json();
 
-      console.log("Fetched data:", data);
-
       if (data.results && Array.isArray(data.results)) {
         const enrolledCourses = data.results.map((course: any) => ({
           id: course.courseID,
@@ -56,8 +52,6 @@ const Cart = () => {
           startTime: course.startTime,
           endTime: course.endTime,
         }));
-
-        console.log("Mapped enrolled courses:", enrolledCourses);
 
         setEnrolledCourses(enrolledCourses);
       } else {

@@ -22,6 +22,7 @@ const CourseCreation = () => {
   const [courseDays, setCourseDays] = useState<string[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isEditing, setIsEditing] = useState(Boolean);
+  const [conflictMessage, setConflictMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const modification = localStorage.getItem("modify");
@@ -66,6 +67,13 @@ const CourseCreation = () => {
       courseEndTime: formatTime(courseEndTime),
       courseDays,
     };
+
+    if (checkForConflicts()) {
+      setConflictMessage(
+        "There are time/date conflicts between the selected and enrolled courses."
+      );
+      return;
+    }
 
     try {
       var profID = localStorage.getItem("profID"); // Get the user ID from local storage
@@ -115,7 +123,7 @@ const CourseCreation = () => {
   const handleFetchCourses = async () => {
     try {
       var user = localStorage.getItem("profID"); // Get the user ID from local storage
-      const profCourse = `/api/select?table=course&columns=courseID,courseName,courseDesc,startTime,endTime&condition=profID=${user}`;
+      const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${user}&group_by=course.courseID`;
       const courseFetch = await fetch(profCourse, {
         method: "GET",
       });
@@ -127,6 +135,7 @@ const CourseCreation = () => {
         courseID: course.courseID,
         courseName: course.courseName,
         courseDesc: course.courseDesc,
+        days: course.dayNames,
         startTime: course.startTime,
         endTime: course.endTime,
       }));
@@ -134,6 +143,45 @@ const CourseCreation = () => {
     } catch (error) {
       console.error("Error fetching courses:", error);
     }
+  };
+
+  console.log(courses);
+
+  const checkForConflicts = () => {
+    console.log("Checking for conflicts...");
+
+    for (const taughtCourse of courses) {
+      const taughtDays = taughtCourse.days
+        ? taughtCourse.days.split(",").map((day) => day.trim())
+        : [];
+
+      const overlappingDays = taughtDays.some((days) =>
+        courseDays.includes(days)
+      );
+
+      console.log(overlappingDays);
+
+      const overlappingTimes =
+        (taughtCourse.startTime <= formatTime(courseStartTime) &&
+          formatTime(courseStartTime) <= taughtCourse.endTime) ||
+        (taughtCourse.startTime <= formatTime(courseEndTime) &&
+          formatTime(courseEndTime) <= taughtCourse.endTime);
+
+      console.log("Taught Start: ", taughtCourse.startTime);
+      console.log("Taught End: ", taughtCourse.endTime);
+      console.log("New Start: ", formatTime(courseStartTime));
+      console.log("New End: ", formatTime(courseEndTime));
+
+      console.log(overlappingTimes);
+
+      if (overlappingDays && overlappingTimes) {
+        console.log("Conflict detected!");
+        return true;
+      }
+    }
+
+    console.log("No conflicts found.");
+    return false;
   };
 
   const handleModify = (course: any) => {
@@ -227,33 +275,34 @@ const CourseCreation = () => {
             Course Days
           </label>
           <div className="flex flex-wrap">
-            {[
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-            ].map((day) => (
-              <label key={day} className="mr-4">
-                <input
-                  type="checkbox"
-                  value={day}
-                  checked={courseDays.includes(day)}
-                  onChange={() => handleCheckboxChange(day)}
-                  className="mr-2 leading-tight"
-                />
-                {day}
-              </label>
-            ))}
+            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
+              (day) => (
+                <label key={day} className="mr-4">
+                  <input
+                    type="checkbox"
+                    value={day}
+                    checked={courseDays.includes(day)}
+                    onChange={() => handleCheckboxChange(day)}
+                    className="mr-2 leading-tight"
+                  />
+                  {day}
+                </label>
+              )
+            )}
           </div>
         </div>
         <div className="mb-4">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            {isEditing ? "Update Course" : "Create Course"}
-          </button>
+          <div className="mt-8 flex flex-col justify-end pb-6">
+            {conflictMessage && (
+              <div className="text-red-600 mb-4">{conflictMessage}</div>
+            )}
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              {isEditing ? "Update Course" : "Create Course"}
+            </button>
+          </div>
         </div>
       </form>
       <div className="mt-10">

@@ -83,7 +83,7 @@ const myCourse = () => {
         const data = await response.json();
         console.log("Course deleted", data);
         const newCourses = courses.filter(
-          (course) => course.id !== selectedCourseId,
+          (course) => course.id !== selectedCourseId
         );
         setCourses(newCourses);
       } catch (error) {
