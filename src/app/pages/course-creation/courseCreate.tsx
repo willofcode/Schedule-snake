@@ -113,7 +113,7 @@ const CourseCreation = () => {
         if (!courseUpdate.ok) {
           throw new Error("Could not update course");
         }
-        console.log("Course updated successfu lly:", await courseUpdate.json());
+        console.log("Course updated successfully:", await courseUpdate.json());
       } else { // ELSE STATEMENT HERE
         setIsEditing(false);
         console.log(courseData.courseDays);
