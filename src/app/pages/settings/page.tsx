@@ -20,7 +20,6 @@ export default function Settings() {
   useEffect(() => {
     const userId = localStorage.getItem("userID");
 
-
     if (!userId) {
       setError("User ID not found in local storage");
       setLoading(false);
@@ -30,7 +29,9 @@ export default function Settings() {
     console.log("Fetched userId from local storage:", userId); // Debug log
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`/api/select?table=enrollment&columns=enrollment.courseID,course.profID,course.courseName&inner_join=course&on_inner=enrollment.courseID=course.courseID&condition=studentID=${studentID}`);
+        const response = await fetch(
+          `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName)%20AS%20dayNames,professor.fullname,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=enrollment&on_inner=course.courseID=enrollment.courseID&inner_join=student&on_inner=enrollment.studentID=student.studentID&inner_join=users&on_inner=student.userID=users.userID&condition=users.userType=userType%20AND%20users.userID=${userId}&group_by=course.courseID&order_by=course.startTime`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
@@ -57,9 +58,11 @@ export default function Settings() {
     fetchUserData();
   }, []);
 
-  const getCourseID = async (courseName : string): Promise<number> => {
+  const getCourseID = async (courseName: string): Promise<number> => {
     try {
-      const response = await fetch(`/api/select?table=course&columns=courseID&condition=courseName='${(courseName)}'`);
+      const response = await fetch(
+        `/api/select?table=course&columns=courseID&condition=courseName='${courseName}'`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch course ID");
       }
@@ -75,18 +78,20 @@ export default function Settings() {
 
   const handleDelete = async (courseName: string) => {
     try {
-     const courseID = await getCourseID(courseName);
-     const deleteCourse = `/api/delete?table=enrollment&condition=courseID=${courseID} AND studentID=${studentID}`;
-     const response = await fetch (deleteCourse, {
-       method: "DELETE",
-     });
-     if (!response.ok) { console.log(`Trouble deleting course`); }
-     console.log(response);
-     router.push("/");
+      const courseID = await getCourseID(courseName);
+      const deleteCourse = `/api/delete?table=enrollment&condition=courseID=${courseID} AND studentID=${studentID}`;
+      const response = await fetch(deleteCourse, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        console.log(`Trouble deleting course`);
+      }
+      console.log(response);
+      router.push("/");
     } catch (error) {
       console.error("Error in handleDelete:", error);
     }
-  }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -101,28 +106,33 @@ export default function Settings() {
   }
 
   return (
-      <main style={{padding: "20px", marginTop: "60px"}}>
-        <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
-          <p>First Name: {user.firstName}</p>
-          <p>Last Name: {user.lastName}</p>
-          <p>Student ID: {studentID}</p>
-          <h2>Enrolled Courses:</h2>
-          {user.courses && user.courses.length > 0 ? (
-              <ul className="list-disc pl-5">
-                {user.courses.map((course, index) => (
-                    <li key={index} className="mb-2 flex items-center justify-between">
-                      {course}
-                      <button className="ml-4 bg-red-500 text-white px-2 py-1 rounded"
-                      onClick={() => handleDelete(course)}>
-                        Unenroll
-                      </button>
-                    </li>
-                ))}
-              </ul>
-          ) : (
-              <p>No courses enrolled currently</p>
-          )}
-        </div>
-      </main>
+    <main style={{ padding: "20px", marginTop: "60px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <p>First Name: {user.firstName}</p>
+        <p>Last Name: {user.lastName}</p>
+        <p>Student ID: {studentID}</p>
+        <h2>Enrolled Courses:</h2>
+        {user.courses && user.courses.length > 0 ? (
+          <ul className="list-disc pl-5">
+            {user.courses.map((course, index) => (
+              <li
+                key={index}
+                className="mb-2 flex items-center justify-between"
+              >
+                {course}
+                <button
+                  className="ml-4 bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => handleDelete(course)}
+                >
+                  Unenroll
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No courses enrolled currently</p>
+        )}
+      </div>
+    </main>
   );
 }

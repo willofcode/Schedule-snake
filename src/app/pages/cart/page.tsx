@@ -97,14 +97,19 @@ const Cart = () => {
         const enrollSizeResponse = await fetch(checkEnrollSize);
 
         if (!enrollSizeResponse.ok) {
-          throw new Error("Error occurred in the network response while checking enrollment size");
+          throw new Error(
+            "Error occurred in the network response while checking enrollment size"
+          );
         }
 
         const enrollSizeResult = await enrollSizeResponse.json();
         const enrollSize = enrollSizeResult.results[0].count;
 
-        if (enrollSize >= 5) { // constraint size 3
-          console.log(`Course ID ${courseId} has reached maximum enrollment size of 5`);
+        if (enrollSize >= 5) {
+          // constraint size 3
+          console.log(
+            `Course ID ${courseId} has reached maximum enrollment size of 5`
+          );
           return;
         }
       }

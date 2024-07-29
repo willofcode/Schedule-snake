@@ -136,12 +136,14 @@ const Calendar: NextPage<CalendarProps> = ({ startDate }) => {
       try {
         var user = localStorage.getItem("userID");
         var userType = localStorage.getItem("userType");
+        var prof = localStorage.getItem("profID");
+        console.log("Prof", prof);
         console.log("user", user);
         console.log("userType", userType);
 
         const studentSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName)%20AS%20dayNames,professor.fullname,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&inner_join=professor&on_inner=course.profID=professor.profID&inner_join=enrollment&on_inner=course.courseID=enrollment.courseID&inner_join=student&on_inner=enrollment.studentID=student.studentID&inner_join=users&on_inner=student.userID=users.userID&condition=users.userType=userType%20AND%20users.userID=${user}&group_by=course.courseID&order_by=course.startTime`;
 
-        const profSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${user}&group_by=course.courseID&order_by=course.startTime`;
+        const profSchedule = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${prof}&group_by=course.courseID&order_by=course.startTime`;
 
         const response = await fetch(
           userType === "student" ? studentSchedule : profSchedule,
