@@ -20,7 +20,7 @@ const CourseSearch = () => {
   useEffect(() => {
     const getCourses = async () => {
       try {
-        const getCall = `http://localhost:3000/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&group_by=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime`;
+        const getCall = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&group_by=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime`;
 
         const response = await fetch(getCall, {
           method: "GET",
@@ -65,34 +65,28 @@ const CourseSearch = () => {
     }
   };
   return (
-    <>
-      <div className=" w-full scrollable-container pt-20 bg-white min-h-screen">
-        <div className="px-6 max-w-screen-xl mx-auto">
-          <div className="flex justify-between items-center">
-            <h1
-              className={`${newsreader.className} text-6xl text-black text-left `}
-            >
-              Course Search
-            </h1>
-          </div>
-          <hr className="border-1 border-black flex-grow " />
-          <div className="bg-white scrollable-containe rounded-md mt-8">
-            {courses.map((course) => (
-              <div key={course.id} className="border-b border-gray-200">
-                <CourseItem course={course} onAdd={handleAddToCart} />
-              </div>
-            ))}
+      <>
+        <div className=" w-full scrollable-container pt-20 bg-white min-h-screen">
+          <div className="px-6 max-w-screen-xl mx-auto">
+            <div className="flex justify-between items-center">
+              <h1
+                  className={`${newsreader.className} text-6xl text-black text-left `}
+              >
+                Course Search
+              </h1>
+            </div>
+            <hr className="border-1 border-black flex-grow " />
+            <div className="bg-white scrollable-containe rounded-md mt-8">
+              {courses.map((course) => (
+                  <div key={course.id} className="border-b border-gray-200">
+                    <CourseItem course={course} onAdd={handleAddToCart} />
+                  </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </>
+      </>
   );
 };
 
 export default CourseSearch;
-// SELECT course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime, GROUP_CONCAT(days.dayName) AS dayNames
-// FROM course
-// JOIN course_days ON course.courseID = course_days.courseID
-// JOIN days ON course_days.dayID = days.dayID
-// WHERE course.courseID =
-// GROUP BY course.courseID, course.courseName, course.courseDesc, course.startTime, course.endTime;

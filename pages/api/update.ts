@@ -10,17 +10,25 @@ export default async function handler(
       .status(405)
       .json({ message: "Wrong method, must use PATCH for updating" });
   }
-  const { table, column, value, condition } = req.query;
+  const { table, condition } = req.query;
+  const columns = req.query.column;
+  const values = req.query.value;
 
   if (!table) {
     res.status(400).json({ message: "Table required" });
   }
 
+  if (!Array.isArray(columns) || !Array.isArray(values) || columns.length !== values.length) {
+    res.status(400).json({ message: "Columns and values must be same quantity" });
+    return;
+  }
+
   try {
+    const updates = columns.map((col, index) => `${col} = '${values[index]}'`).join(", ");
     const results = await new Promise((resolve, reject) => {
       db.query(
-        `UPDATE ${table} SET ${column} = ${value} WHERE ${condition};`,
-        (err: any, results: any) => {
+          `UPDATE ${table} SET ${updates} WHERE ${condition};`,
+          (err: any, results: any) => {
           if (err) {
             reject(err);
           } else {

@@ -7,7 +7,7 @@ interface Course {
   courseID: number;
   courseName: string;
   courseDesc: string;
-  courseDays: string;
+  courseDays: string[]; // needed to be an array of strings!
   startTime: string;
   endTime: string;
 }
@@ -35,7 +35,7 @@ const CourseCreation = () => {
       setCourseDescription(course.courseDesc);
       setCourseStartTime(course.startTime);
       setCourseEndTime(course.endTime);
-      setCourseDays(course.days);
+      setCourseDays(course.days || []); // Ensure course.days is an array
       setIsEditing(true);
     } else {
       setIsEditing(false);
@@ -50,21 +50,22 @@ const CourseCreation = () => {
     }
   };
 
-  const formatTime = (time: string) => {
+  const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(":");
-    const formattedTime = hours + minutes;
+    const formattedTime = hours.padStart(2, '0') + minutes.padStart(2, '0');
     return formattedTime;
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
+    const formattedStartTime = formatTime(courseStartTime);
+    const formattedEndTime = formatTime(courseEndTime);
     const courseData = {
       courseName,
       courseID,
       courseDescription,
-      courseStartTime: formatTime(courseStartTime),
-      courseEndTime: formatTime(courseEndTime),
+      courseStartTime: formattedStartTime,
+      courseEndTime: formattedEndTime,
       courseDays,
     };
 
@@ -76,16 +77,42 @@ const CourseCreation = () => {
     }
 
     try {
-      var profID = localStorage.getItem("profID"); // Get the user ID from local storage
-      var modification = localStorage.getItem("modify"); // Get the course modification from local storage
+      var profID = localStorage.getItem("profID");
+      var modification = localStorage.getItem("modify");
 
       console.log("modification type: ", modification);
 
       if (modification === "edit") {
         setIsEditing(true);
-        const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${courseStartTime}&value=${courseEndTime}`; // Update the course in the course table
+        console.log(formattedStartTime, formattedEndTime);
+        const updateCourse = `/api/update?table=course&condition=courseID=${courseID}&column=courseName&column=courseDesc&column=startTime&column=endTime&value=${courseName}&value=${courseDescription}&value=${formattedStartTime}&value=${formattedEndTime}`;
+        const deleteCourseDays = `/api/delete?table=course_days&condition=courseID=${courseID}`
+        const delResponse = await fetch(deleteCourseDays, {
+          method: "DELETE"
+        });
+        if (!delResponse.ok) { console.error(`Error deleting the course days (course days reset)`); return null;}
+        const dayIDs: number[] = [];
+        const length = courseDays.length;
+        for (let i= 0; i < length; i++) {
+          const currDay = courseDays[i];
+          const getDays = `/api/select?table=days&columns=dayID&condition=dayName='${currDay}';`
+          const response = await fetch(getDays);
+          if (!response.ok) { console.error(`Failed fetching dayID`); return null;}
+          const data = await response.json();
+          dayIDs.push(data.results[0].dayID);
+        }
+        for (let i = 0; i<dayIDs.length; i++) {
+          const currID = dayIDs[i];
+          const insertIDs = `/api/insertInto?table=course_days&ignore=true&category=courseID&category=dayID&value=${courseID}&value=${currID}`;
+          const response = await fetch(insertIDs, {
+            method: "POST"
+          });
+          if (!response.ok) { console.error(`Failed INSERTING dayIDs`); return null;}
+          const data = await response.json();
+          console.log(data)
+        }
         const courseUpdate = await fetch(updateCourse, {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
@@ -94,13 +121,21 @@ const CourseCreation = () => {
         if (!courseUpdate.ok) {
           throw new Error("Could not update course");
         }
-        console.log("Course updated successfully:", await courseUpdate.json());
-      } else {
+        console.log("Course updated successfu lly:", await courseUpdate.json());
+      } else { // ELSE STATEMENT HERE
         setIsEditing(false);
-        console.log(courseData.courseName);
-        console.log(courseData.courseDescription);
-        console.log(courseData.courseStartTime);
-        console.log(courseData.courseEndTime);
+        console.log(courseData.courseDays);
+        const dayIDs: number[] = [];
+        const length = courseDays.length;
+        for (let i= 0; i < length; i++) {
+          const currDay = courseDays[i];
+          const getDays = `/api/select?table=days&columns=dayID&condition=dayName='${currDay}';`
+          const response = await fetch(getDays);
+          if (!response.ok) { console.error(`Failed fetching dayID`); return null;}
+          const data = await response.json();
+          dayIDs.push(data.results[0].dayID);
+        }
+        // ^ RETRIEVE DAY IDS
         const createCourse = `/api/insertInto?table=course&category=profID&category=courseName&category=courseDesc&category=startTime&category=endTime&value=${profID}&value='${courseData.courseName}'&value='${courseData.courseDescription}'&value=${courseData.courseStartTime}&value=${courseData.courseEndTime}`;
         const courseCreate = await fetch(createCourse, {
           method: "POST",
@@ -112,7 +147,20 @@ const CourseCreation = () => {
         if (!courseCreate.ok) {
           throw new Error("Could not create course");
         }
-        console.log("Course created successfully:", await courseCreate.json());
+        const createResponse = await courseCreate.json();
+        const newCourseID = createResponse.courseID;
+        console.log(newCourseID);
+        // ^ CREATING A COURSE
+        for (let i = 0; i<dayIDs.length; i++) {
+          const currID = dayIDs[i];
+          const insertIDs = `/api/insertInto?table=course_days&ignore=true&category=courseID&category=dayID&value=${newCourseID}&value=${currID}`;
+          const response = await fetch(insertIDs, {
+            method: "POST"
+          });
+          if (!response.ok) { console.error(`Failed INSERTING dayIDs`); return null;}
+          const data = await response.json();
+          console.log(data)
+        }
         router.push("/pages/my-course");
       }
     } catch (error) {
@@ -122,8 +170,8 @@ const CourseCreation = () => {
 
   const handleFetchCourses = async () => {
     try {
-      var user = localStorage.getItem("profID"); // Get the user ID from local storage
-      const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames,course.courseDesc&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${user}&group_by=course.courseID`;
+      var profID = localStorage.getItem("profID");
+      const profCourse = `/api/select?table=course&columns=course.courseID,course.courseName,course.courseDesc,course.startTime,course.endTime,GROUP_CONCAT(days.dayName) AS dayNames&inner_join=course_days&on_inner=course.courseID=course_days.courseID&inner_join=days&on_inner=course_days.dayID=days.dayID&condition=profID=${profID}&group_by=course.courseID&order_by=course.startTime`;
       const courseFetch = await fetch(profCourse, {
         method: "GET",
       });
@@ -138,6 +186,7 @@ const CourseCreation = () => {
         days: course.dayNames,
         startTime: course.startTime,
         endTime: course.endTime,
+        courseDays: course.dayNames.split(',')
       }));
       setCourses(course);
     } catch (error) {
@@ -188,8 +237,8 @@ const CourseCreation = () => {
     setCourseName(course.courseName);
     setCourseID(course.courseID);
     setCourseDescription(course.courseDescription);
-    setCourseStartTime(course.courseStartTime);
-    setCourseEndTime(course.courseEndTime);
+    setCourseStartTime(course.startTime);
+    setCourseEndTime(course.endTime);
     setCourseDays(course.courseDays);
     setIsEditing(true);
   };
@@ -290,6 +339,108 @@ const CourseCreation = () => {
               )
             )}
           </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseDescription"
+            >
+              Course Description
+            </label>
+            <textarea
+                id="courseDescription"
+                value={courseDescription}
+                onChange={(e) => setCourseDescription(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseStartTime"
+            >
+              Course Start Time
+            </label>
+            <input
+                type="time"
+                id="courseStartTime"
+                value={courseStartTime}
+                onChange={(e) => setCourseStartTime(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline step=1"
+                required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseEndTime"
+            >
+              Course End Time
+            </label>
+            <input
+                type="time"
+                id="courseEndTime"
+                value={courseEndTime}
+                onChange={(e) => setCourseEndTime(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline step=1"
+                required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="courseDays"
+            >
+              Course Days
+            </label>
+            <div className="flex flex-wrap">
+              {[
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ].map((day) => (
+                  <label key={day} className="mr-4">
+                    <input
+                        type="checkbox"
+                        value={day}
+                        checked={courseDays.includes(day)}
+                        onChange={() => handleCheckboxChange(day)}
+                        className="mr-2 leading-tight"
+                    />
+                    {day}
+                  </label>
+              ))}
+            </div>
+          </div>
+          <div className="mb-4">
+            <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              {isEditing ? "Update Course" : "Create Course"}
+            </button>
+          </div>
+        </form>
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-4">Existing Courses</h2>
+          <ul>
+            {courses.map((course) => (
+                <li key={course.courseID} className="mb-2">
+                  <span className="font-bold">{course.courseName}</span> (
+                  {course.courseID})
+                  <button
+                      onClick={() => handleModify(course)}
+                      className="ml-4 bg-blue-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    Modify
+                  </button>
+                </li>
+            ))}
+          </ul>
         </div>
         <div className="mb-4">
           <div className="mt-8 flex flex-col justify-end pb-6">
@@ -322,7 +473,6 @@ const CourseCreation = () => {
           ))}
         </ul>
       </div>
-    </div>
   );
 };
 
