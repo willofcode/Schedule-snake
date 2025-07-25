@@ -1,52 +1,64 @@
-# Getting Started (PLEASE READ ME!! 😭😭😭)
-After git cloning, please make a config/db.js file in the project directory. Should look like this:</br>
-![img.png](img.png)</br>
-Contents of ```db.js``` should be privately sent on Discord.
+# Schedule Snake
+A web application built to ensure a smooth enrollment process into university courses. 
+Professors are able to create courses on Schedule Snake swiftly, and students are able to
+enroll into courses that those professors create for the corresponding university. 
+Schedule Snake is powered by NextJS & MySQL database hosted on PhpMyAdmin</br>
 
-# API Calls:
-Note: For legibility, 'host' in API calls below will mean http://localhost:3000, or other ports or local addresses you're running on. If you would like to test out the calls, I recommend using Postman for making these requests.
-### Getting Started
-To get started, make sure your config/db.js is set up. Once done so, test your connection:</br>
-Send ```host/api/testConnection``` as a GET request with no arguments after running ```npm run dev```
-### SELECT statements
-Currently only supports statements that receive arguments column, table, and condition</br>
-SELECT statement endpoint is found in select.ts at ```host/api/select```</br>
-Examples:</br>
-```host/api/select?table=professor```</br>
-```host/api/select?table=student&columns=name,age,year```</br>
-```host/api/select?table=student&columns=name&condition=age=22 AND year='Senior'```
-#### JOIN (LEFT, INNER, RIGHT)</br>
-Currently supports LEFT, INNER, and RIGHT JOIN queries. Examples below for LEFT, INNER, and RIGHT JOIN queries:</br>
-```host/api/select?table=users&columns=professor.email&inner_join=professor&on_inner=professor.userID=users.userID```</br>
-```host/api/select?table=users&columns=professor.email&left_join=professor&on_left=professor.userID=users.userID```</br>
-```host/api/select?table=users&columns=professor.email&right_join=professor&on_right=professor.userID=users.userID```</br>
-#### GROUP BY</br>
-Example:</br>
-```host/api/select?table=users&columns=COUNT(userID) as Count,userType&group_by=userType```</br>
-Note this API call may be inefficient in the future, will definitely consider optimizing, but low-priority for now</br>
-#### ORDER BY</br>
-Example:</br>
-```host/api/select?table=professor&order_by=fullname```
+### Demo
 
-### INSERT INTO statements
-Supports basic parameters table, category, and value where category and value can be inserted multiple times to choose values for all needed columns.
-Note that the API request will detect if the category and values are unequal, requiring a proper API request. The request will also
-respect the order in which each category/column and value is sent in.</br>
-INSERT INTO statement endpoint is found in insertInto.ts at ```host/api/insertInto```</br>
-Examples:</br>
-```host/api/insertInto?table=student&category=name&category=age&category=year&value='Douglas'&value=24&value='Senior'```
-### DELETE FROM statements
-Supports parameters table and conditions. Deletes a row from a given table.</br>
-DELETE FROM statement endpoint is found in delete.ts at ```host/api/delete```</br>
-Examples:</br>
-```host/api/delete?table=professor&condition=name="Troeger"```
-### UPDATE statements
-Supports parameters table, column, value, condition (Currently only supports updating with only one condition). Simply updates a given table at a specific column with given value based on a condition. </br>
-UPDATE endpoint found at update.ts at ```host/api/update```</br>
-Examples:</br>
-```host/api/update?table=student&column=year&value="Senior"&condition=age=21```
-# Connecting to Docker (Still WIP)
+![schedule_snake.gif](public%2Fschedule_snake.gif)
+
+### Purpose 
+
+Schedule Snake demonstrates MySQL's reliability as a high-performing relational database through an
+application that relies on data consistency due to the involvement of certain features including verifying proper enrollment.
+Schedule Snake is built to be robust and user friendly, and an expression of what students wished 
+for CUNY's Schedule Builder to be closer to.
+
+### How to setup 
+
+Ensure Git & Node.js are installed on your computer. Clone the repository:
 ```
-docker pull gradlee/schedule-snake:latest
-docker run -p 3000:8080 gradlee/schedule-snake:latest
+# clone Schedule Snake
+$ git clone https://github.com/jaynopponep/schedule-snake.git
+
+# change directory to schedule snake
+$ cd schedule-snake
+
+# install dependencies
+$ npm install
+
+# run the development server
+$ npm run dev
 ```
+After this, you should be able to run the application on your localhost since this project
+is already connected to the PhpMyAdmin server. Note the password for DB connection must be directly retrieved.
+
+### Use Cases
+
+- Course creation by professors 
+- Proper student enrollment (no time conflicts, no overbooking, confirming seat availability)
+- Course management
+- Course withdrawal, consistently updated in real time
+- Account management
+
+### Limitations
+
+We have successfully implemented a minimum viable product for this project; however, 
+has minor limitations on features that can be fixed or enhanced in the future. Some of these would
+include that passwords are not decrypted when signing up, the use of cookies instead of localStorage
+in order to persist cart and login status, and having access to different universities and only those.
+
+### Contributors
+<a href="https://github.com/jaynopponep">
+  <img src="https://github.com/jaynopponep.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="Jay Noppone P" />
+</a>
+<a href="https://github.com/willofcode">
+  <img src="https://github.com/willofcode.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="William Ng" />
+</a>
+<a href="https://github.com/MattMunoz">
+  <img src="https://github.com/MattMunoz.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="Matthew Munoz" />
+</a>
+<a href="https://github.com/BaljinderHothi">
+  <img src="https://github.com/BaljinderHothi.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="Baljinder Hothi" />
+</a>
